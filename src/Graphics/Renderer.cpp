@@ -15,7 +15,8 @@ namespace Renderer
         std::cout << "Id: " << id << std::endl;
         std::cout << "Severity: 0x" << std::hex << severity << std::endl;
         std::cout << "Message: " << message << std::endl;
-        exit(-1);
+        if (severity != GL_DEBUG_SEVERITY_NOTIFICATION)
+            exit(-1);
     }
 
     void DebugEnable()
