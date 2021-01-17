@@ -3,7 +3,7 @@
 
 Behaviour::Behaviour()
 {
-	//behaviourList.push_back(this);
+	behaviourList.push_back(this);
 }
 
 Behaviour::Behaviour(const Behaviour& obj)
@@ -47,14 +47,13 @@ void Behaviour::Update()
 void Behaviour::UpdateBehaviours()
 {
 	for (Behaviour* obj : behaviourList)
-	{
 		obj->Update();
-	}
 }
 
-void Behaviour::AddBehaviour(Behaviour* behaviour)
+void Behaviour::ReleaseBehaviours()
 {
-	behaviourList.push_back(behaviour);
+	for (auto behaviour : behaviourList)
+		delete behaviour;
 }
 
 std::vector<Behaviour*> Behaviour::behaviourList = std::vector<Behaviour*>();

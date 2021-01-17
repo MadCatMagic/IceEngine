@@ -3,7 +3,7 @@
 
 PlayerController::PlayerController()
 {
-	Behaviour::AddBehaviour(this);
+
 }
 
 void PlayerController::Update()

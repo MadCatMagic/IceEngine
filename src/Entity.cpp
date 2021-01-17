@@ -7,6 +7,8 @@ Entity::Entity()
 Entity::~Entity()
 {
 	delete transform;
+	for (auto behaviour : behaviours)
+		delete behaviour;
 }
 
 // default

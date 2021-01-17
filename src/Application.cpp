@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Renderer.h"
+#include "Time.h"
 
 #include "Quaternion.h"
 #include "Input.h"
@@ -86,6 +87,8 @@ int main(void)
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
+    float frameTime = (float)glfwGetTime();
+
     double prevCursorPosX = -1.0;
     double prevCursorPosY = -1.0;
 
@@ -106,6 +109,11 @@ int main(void)
             nbFrames = 0;
             lastTime += 1.0;
         }
+        
+        // Time settings
+        float currentFrameTime = glfwGetTime();
+        Time::SetUDT(currentFrameTime - frameTime);
+        frameTime = currentFrameTime;
 
         // Render to renderTexture
         renderTexture.Bind();
@@ -175,6 +183,9 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
+
+    Renderer::Release();
+    Behaviour::ReleaseBehaviours();
 
     glfwTerminate();
     return 0;

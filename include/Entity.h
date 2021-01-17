@@ -18,14 +18,14 @@ public:
 	void AddBehaviour();
 
 private:
-	std::vector<Behaviour> behaviours;
+	std::vector<Behaviour*> behaviours;
 };
 
 template<typename T>
 void Entity::AddBehaviour()
 {
-	T behaviour = T();
-	behaviour.entity = this;
-	behaviour.transform = transform;
+	T* behaviour = new T();
+	behaviour->entity = this;
+	behaviour->transform = transform;
 	behaviours.push_back(behaviour);
 }

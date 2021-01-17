@@ -47,6 +47,7 @@
     <ClCompile Include="src\Utilities\StringUtils.cpp" />
     <ClCompile Include="src\Graphics\Texture2D.cpp" />
     <ClCompile Include="src\Transform.cpp" />
+    <ClCompile Include="src\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Behaviour.h" />
@@ -71,6 +72,7 @@
     <ClInclude Include="include\Quaternion.h" />
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\PlayerController.h" />
+    <ClInclude Include="include\Time.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />

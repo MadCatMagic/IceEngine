@@ -21,8 +21,7 @@ public:
 	virtual void Update();
 
 	static void UpdateBehaviours();
-	static void AddBehaviour(Behaviour* behaviour);
-
+	static void ReleaseBehaviours();
 private:
 	static std::vector<Behaviour*> behaviourList;
 };
