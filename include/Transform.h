@@ -11,9 +11,12 @@ struct Transform
 	Transform* child{ nullptr };
 
 	// transforms
+	Vector3 localPosition;
 	Vector3 position;
-	Quaternion rotation;
-	Vector3 scale;
+	Quaternion localRotation{};
+	Quaternion rotation{};
+	Vector3 localScale;
+	Vector3 globalScale;
 
 	Transform();
 	Transform(const Vector3& position);
@@ -36,6 +39,20 @@ struct Transform
 	void AssignChild(Transform* child);
 	void AssignEntity(Entity* entity);
 
-	inline bool operator==(const Transform& a) const { return position == a.position && rotation == a.rotation && scale == a.scale; }
+	inline bool operator==(const Transform& a) const 
+	{ 
+		return 
+			localPosition == a.localPosition && 
+			localRotation == a.localRotation && 
+			localScale == a.localScale && 
+			position == a.position && 
+			rotation == a.rotation && 
+			globalScale == a.globalScale; 
+	}
 	inline bool operator!=(const Transform& a) const { return !(*this == a); }
+
+	void UpdateGlobalPos();
+	void UpdateGlobalRot();
+	void UpdateGlobalScale();
+	void UpdateGlobalTransform();
 };

@@ -25,11 +25,13 @@ public:
 	Matrix4x4 operator-(Matrix4x4 other) const;
 	Matrix4x4 operator*(Matrix4x4 other) const;
 	Vector4 operator*(Vector4 other) const;
+	Vector3 operator*(Vector3 other) const;
 	Matrix4x4 operator*(float scalar) const;
 	std::string ToString();
 
 	static Matrix4x4 PointAt(const Vector3& pos, const Vector3& target, const Vector3& up);
 	static Matrix4x4 LookAt(const Vector3& pos, const Vector3& target, const Vector3& up);
+	static Matrix4x4 Rotation(const Vector3& euler);
 
 	static Matrix4x4 zero;
 	static Matrix4x4 identity;

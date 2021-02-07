@@ -23,17 +23,17 @@ Quaternion::Quaternion(float w, float x, float y, float z)
 // x is roll
 Quaternion::Quaternion(const Vector3& euler)
 {
-    double cy = cos(euler.z * 0.5);
-    double sy = sin(euler.z * 0.5);
-    double cp = cos(euler.y * 0.5);
-    double sp = sin(euler.y * 0.5);
-    double cr = cos(euler.x * 0.5);
-    double sr = sin(euler.x * 0.5);
+    double cz = cos(euler.z * 0.5);
+    double sz = sin(euler.z * 0.5);
+    double cy = cos(euler.y * 0.5);
+    double sy = sin(euler.y * 0.5);
+    double cx = cos(euler.x * 0.5);
+    double sx = sin(euler.x * 0.5);
 
-    this->w = (float)(cr * cp * cy + sr * sp * sy);
-    this->x = (float)(sr * cp * cy - cr * sp * sy);
-    this->y = (float)(cr * sp * cy + sr * cp * sy);
-    this->z = (float)(cr * cp * sy - sr * sp * cy);
+    this->w = (float)(cz * cx * cy - sz * sx * sy);
+    this->x = (float)(cz * sx * cy - sz * cx * sy);
+    this->y = (float)(sz * sx * cy + cz * cx * sy);
+    this->z = (float)(cz * sx * sy + sz * cx * cy);
 }
 
 Quaternion::Quaternion(const Vector3& axis, float angle)
@@ -126,7 +126,11 @@ Matrix4x4 Quaternion::GetRotationMatrix() const
 
 Vector3 Quaternion::RotateVector(const Vector3& a) const
 {
-    return Vector3(GetRotationMatrix() * Vector4(a));
+    Quaternion q = Quaternion(0.0f, a.x, a.y, a.z);
+    Quaternion t = Quaternion(this->w, this->x, this->y, this->z);
+    q = t * q * Quaternion::Conjugate(t);
+    Vector3 o = Vector3(q.x, q.y, q.z);
+    return o;
 }
 
 Vector3 Quaternion::ToEuler() const
@@ -144,7 +148,7 @@ Vector3 Quaternion::ToEuler() const
 
 float Quaternion::Length(const Quaternion& a)
 {
-    return 2.0f * (a.w + a.x + a.y + a.z);
+    return sqrt(a.w * a.w + a.x * a.x + a.y * a.y + a.z * a.z);
 }
 
 Quaternion Quaternion::Normalize(const Quaternion& a)
@@ -168,6 +172,11 @@ bool Quaternion::operator==(const Quaternion& a) const
 bool Quaternion::operator!=(const Quaternion& a) const
 {
     return !(*this == a);
+}
+
+std::string Quaternion::ToString() const
+{
+    return std::to_string(w) + ", " + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z);
 }
 
 Quaternion Quaternion::identity = Quaternion();

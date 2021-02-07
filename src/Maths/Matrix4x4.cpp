@@ -179,6 +179,11 @@ Vector4 Matrix4x4::operator*(const Vector4 other) const
 	return v;
 }
 
+Vector3 Matrix4x4::operator*(Vector3 other) const
+{
+	return Vector3(*this * Vector4(other));
+}
+
 Matrix4x4 Matrix4x4::operator*(float scalar) const
 {
 	Matrix4x4 M = Matrix4x4();
@@ -252,6 +257,23 @@ Matrix4x4 Matrix4x4::LookAt(const Vector3& pos, const Vector3& target, const Vec
 		Vector4(-Vector3::Dot(pos, newRight), -Vector3::Dot(pos, newUp), -Vector3::Dot(pos, newForward), 1.0f)
 	);
 	return matrix;
+}
+
+Matrix4x4 Matrix4x4::Rotation(const Vector3& euler)
+{
+	float sx = (float)sin(euler.x);
+	float sy = (float)sin(euler.y);
+	float sz = (float)sin(euler.z);
+	float cx = (float)cos(euler.x);
+	float cy = (float)cos(euler.y);
+	float cz = (float)cos(euler.z);
+
+	return Matrix4x4(
+		Vector4(cz * cx - sz * sx * sy, -cx * sz, cz * sy + cy * sz * sx, 0.0f),
+		Vector4(cy * sz + cz * sx * sy, cz * cx, sz * sy - cz * cy * sx, 0.0f),
+		Vector4(-cx * sy, sx, cx * cy, 0.0f),
+		Vector4(0.0f, 0.0f, 0.0f, 1.0f)
+	);
 }
 
 Matrix4x4 Matrix4x4::zero = Matrix4x4();

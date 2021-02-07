@@ -43,11 +43,14 @@
     <ClCompile Include="src\Mesh\VertexBuffer.cpp" />
     <ClCompile Include="src\Mesh\VertexArray.cpp" />
     <ClCompile Include="src\Maths\Matrix4x4.cpp" />
+    <ClCompile Include="src\UI\UI.cpp" />
+    <ClCompile Include="src\UI\UIButton.cpp" />
     <ClCompile Include="src\Utilities\ListUtils.cpp" />
     <ClCompile Include="src\Utilities\StringUtils.cpp" />
     <ClCompile Include="src\Graphics\Texture2D.cpp" />
     <ClCompile Include="src\Transform.cpp" />
     <ClCompile Include="src\Time.cpp" />
+    <ClCompile Include="src\UI\UIElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Behaviour.h" />
@@ -73,6 +76,7 @@
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\PlayerController.h" />
     <ClInclude Include="include\Time.h" />
+    <ClInclude Include="include\UI.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />

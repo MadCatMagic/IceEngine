@@ -5,19 +5,16 @@
 
 #include "Renderer.h"
 #include "Time.h"
+#include "UI.h"
 
 #include "Quaternion.h"
 #include "Input.h"
 
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
 #include "Mesh.h"
-
 #include "FMaths.h"
+
 #include "Camera.h"
 #include "RenderTexture.h"
-
 #include "Entity.h"
 #include "PlayerController.h"
 
@@ -53,11 +50,16 @@ int main(void)
     Input::EnableInput(window);
 
     // entity testing
-    Entity ent = Entity();
-    ent.DefaultTransform();
-    ent.AddBehaviour<PlayerController>();
+    Entity player = Entity();
+    Entity playerCam = Entity();
+    player.DefaultTransform();
+    playerCam.DefaultTransform();
 
-	Camera cam = Camera(Transform(), 0.1f, 50.0f, 90.0f);
+    player.transform->AssignChild(playerCam.transform);
+    PlayerController* pc = player.AddBehaviour<PlayerController>();
+
+	Camera cam = Camera(0.1f, 50.0f, 90.0f);
+    pc->SetCam(&cam);
 
 	Shader shader = Shader("res/shaders/Basic.shader");
     Material mat = Material(shader);
@@ -86,18 +88,13 @@ int main(void)
     // fps counter
     double lastTime = glfwGetTime();
     int nbFrames = 0;
-
     float frameTime = (float)glfwGetTime();
 
     double prevCursorPosX = -1.0;
     double prevCursorPosY = -1.0;
-
-    double rotX = 0.0f;
     double rotY = 0.0f;
 
-    const double halfPI = 1.5705f;
-
-    const float speed = 0.04f;
+    const double halfPI = 1.5705;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -111,7 +108,7 @@ int main(void)
         }
         
         // Time settings
-        float currentFrameTime = glfwGetTime();
+        float currentFrameTime = (float)glfwGetTime();
         Time::SetUDT(currentFrameTime - frameTime);
         frameTime = currentFrameTime;
 
@@ -123,7 +120,7 @@ int main(void)
         // drawing stuff
         mesh.Bind();
         mat.SetVector4("setColour", Vector4(r, 0.0f, 1.0f - r, 1.0f));
-        mat.SetMatrix4x4("projectionMatrix", cam.GetProjectionMatrix());
+        mat.SetMatrix4x4("projectionMatrix", pc->GetCamMatrix());
         mesh.DrawMesh();
         mesh.Unbind();
         
@@ -138,24 +135,6 @@ int main(void)
             increment = 0.05f;
         r += increment;
 
-        // camera directions
-        Vector3 forward = cam.transform.ForwardXZ();
-        Vector3 right = cam.transform.RightXZ();
-
-        // movement
-        if (Input::spaceState == GLFW_PRESS || Input::spaceState == GLFW_REPEAT)
-            cam.transform.position += Vector3(0.0f, speed, 0.0f);
-        else if (Input::lshiftState == GLFW_PRESS || Input::lshiftState == GLFW_REPEAT)
-            cam.transform.position -= Vector3(0.0f, speed, 0.0f);
-        if (Input::wState == GLFW_PRESS || Input::wState == GLFW_REPEAT)
-            cam.transform.position += forward * speed;
-        else if (Input::sState == GLFW_PRESS || Input::sState == GLFW_REPEAT)
-            cam.transform.position -= forward * speed;
-        if (Input::dState == GLFW_PRESS || Input::dState == GLFW_REPEAT)
-            cam.transform.position -= right * speed;
-        else if (Input::aState == GLFW_PRESS || Input::aState == GLFW_REPEAT)
-            cam.transform.position += right * speed;
-
         // cursor difference to last frame
         double diffX = 0;
         double diffY = 0;
@@ -168,14 +147,14 @@ int main(void)
         prevCursorPosY = Input::cursorPosY;
 
         // rotation magic ???
-        rotX -= diffX / 120.0f;
+        //rotX -= diffX / 120.0f;
         rotY -= diffY / 120.0f; 
         rotY = FMaths::Clamp(rotY, -halfPI, halfPI);
-        Quaternion yrot(Vector3((float)rotY));
-        Quaternion xrot(Vector3(0.0f, (float)rotX));
-        cam.viewDir = (yrot * xrot).RotateVector(Vector3(0.0f, 0.0f, 1.0f));
-        //cam.transform.SetRotation(Vector3((float)rotY));
-        //cam.transform.Rotate(Vector3(0.0f, (float)rotX));
+
+        playerCam.transform->SetRotation(Vector3((float)rotY, 0.0f, 0.0f));
+        player.transform->Rotate(Vector3(0.0f, (float)-diffX / 120.0f, 0.0f));//SetRotation(Vector3(0.0f, (float)rotX, 0.0f));
+
+        std::cout << playerCam.transform->rotation.ToString() << std::endl;
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -184,6 +163,7 @@ int main(void)
         glfwPollEvents();
     }
 
+    // clean up
     Renderer::Release();
     Behaviour::ReleaseBehaviours();
 

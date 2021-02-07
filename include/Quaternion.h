@@ -1,5 +1,6 @@
 #pragma once
 #include "Matrix.h"
+#include <string>
 
 // mostly from http://www.chrobotics.com/library/understanding-quaternions
 // complicated maths D:
@@ -35,6 +36,8 @@ public:
 
 	bool operator==(const Quaternion& a) const;
 	bool operator!=(const Quaternion& a) const;
+
+	std::string ToString() const;
 
 	static Quaternion identity;
 };

@@ -2,6 +2,8 @@
 
 #include "Behaviour.h"
 #include <vector>
+#include <stdexcept>
+#include <iostream>
 
 class Entity
 {
@@ -14,18 +16,20 @@ public:
 	void DefaultTransform();
 	void AssignTransform(Transform* transform);
 
+	// way to assign behaviours
 	template<typename T>
-	void AddBehaviour();
+	T* AddBehaviour();
 
 private:
 	std::vector<Behaviour*> behaviours;
 };
 
 template<typename T>
-void Entity::AddBehaviour()
+T* Entity::AddBehaviour()
 {
 	T* behaviour = new T();
 	behaviour->entity = this;
 	behaviour->transform = transform;
 	behaviours.push_back(behaviour);
+	return behaviour;
 }
