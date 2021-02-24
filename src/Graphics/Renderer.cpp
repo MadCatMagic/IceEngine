@@ -56,6 +56,11 @@ namespace Renderer
     {
         glViewport(offset.x, offset.y, size.x, size.y);
     }
+    
+    void BindScreenBuffer()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 
     static VertexBuffer* blitVB;
     static VertexArray* blitVA;
@@ -83,7 +88,7 @@ namespace Renderer
         // Render to the screen
         glBindFramebuffer(GL_FRAMEBUFFER, dest);
         Viewport(winSize);
-        ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Use the shader
         blitMat->Bind();
@@ -100,7 +105,7 @@ namespace Renderer
         blitVA->EnableAttribute(0);
 
         // Draw the triangles !
-        glDrawArrays(GL_TRIANGLES, 0, 6); // 2*3 indices starting at 0 -> 2 triangles
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         blitVA->DisableAttribute(0);
     }
 

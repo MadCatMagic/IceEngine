@@ -1,5 +1,8 @@
 #zwrite off
 #cull off
+#blend on
+#blendsrc SrcAlpha
+#blenddest OneMinusSrcAlpha
 #shader vertex
 #version 330 core
 
@@ -15,7 +18,7 @@ void main() {
 #version 330 core
 
 in vec2 UV;
-out vec3 color;
+out vec4 color;
 
 uniform sampler2D renderedTexture;
 
@@ -32,5 +35,8 @@ vec3 blendsample(vec2 uv)
 }*/
 
 void main() {
-	color = texture(renderedTexture, UV).xyz;
+	vec4 tex = texture(renderedTexture, UV);
+	//if (tex.a == 0.0)
+	//	discard;
+	color = tex;
 }

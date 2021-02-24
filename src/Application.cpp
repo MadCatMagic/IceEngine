@@ -14,7 +14,7 @@
 #include "FMaths.h"
 
 #include "Camera.h"
-#include "RenderTexture.h"
+#include "Texture.h"
 #include "Entity.h"
 #include "PlayerController.h"
 
@@ -48,7 +48,8 @@ int main(void)
 
     Renderer::Init(true);
     Input::EnableInput(window);
-
+    UI::Initialize(winSize);
+    
     // entity testing
     Entity player = Entity();
     Entity playerCam = Entity();
@@ -61,24 +62,18 @@ int main(void)
 	Camera cam = Camera(0.1f, 50.0f, 90.0f);
     pc->SetCam(&cam);
 
+    // button testing
+    UI::Button button = UI::Button(Vector2i(50, 50), Vector2i(-100, -100));
+
 	Shader shader = Shader("res/shaders/Basic.shader");
     Material mat = Material(shader);
 	Mesh mesh = Mesh(mat, "res/models/monke.obj");
     
     // texture stufffff
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-    RenderTexture renderTexture = RenderTexture();
-    
-    // textures and buffers
-    Texture2D renderedTexture = Texture2D(0, Texture2D::TextureFormat::RGB, winSize, Texture2D::TextureFormat::RGB);
-    renderedTexture.SetDefaultFiltering();
-    RenderBuffer depthrenderbuffer = RenderBuffer(RenderBuffer::RenderBufferType::DEPTH, winSize);
-    renderTexture.SetAttachment(RenderTexture::AttachmentType::DEPTH, depthrenderbuffer);
-    renderTexture.SetAttachment(RenderTexture::AttachmentType::COLOR0, renderedTexture, 0);
-    
-    // draw ffbbuyfferers
-    RenderTexture::AttachmentType DrawBuffers[1] = { RenderTexture::AttachmentType::COLOR0 };
-    renderTexture.SetDrawBuffers(1, DrawBuffers);
+    RenderTexture renderTexture = RenderTexture(winSize.x, winSize.y, Texture::Format::Depth, Texture::Format::RGBA);
+    renderTexture.GenerateBuffers();
+
     if (!renderTexture.TextureOK())
         std::cout << "rendertexture error" << std::endl;
 
@@ -90,11 +85,11 @@ int main(void)
     int nbFrames = 0;
     float frameTime = (float)glfwGetTime();
 
-    double prevCursorPosX = -1.0;
-    double prevCursorPosY = -1.0;
-    double rotY = 0.0f;
-
-    const double halfPI = 1.5705;
+    float prevCursorPosX = -1.0;
+    float prevCursorPosY = -1.0;
+    float rotY = 0.0f;
+    glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+    const float halfPI = 1.5705f;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -113,8 +108,9 @@ int main(void)
         frameTime = currentFrameTime;
 
         // Render to renderTexture
+        // rendertexture should be containing the drawn texture in renderTexture.colourBuffer
         renderTexture.Bind();
-        Renderer::Viewport(winSize); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+        Renderer::Viewport(winSize);
         Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // drawing stuff
@@ -123,8 +119,16 @@ int main(void)
         mat.SetMatrix4x4("projectionMatrix", pc->GetCamMatrix());
         mesh.DrawMesh();
         mesh.Unbind();
+
+        // renders the ui ontop
+        //UI::RenderUI(&renderTexture);
+        // clears the screen ready for the new rendertexture to be blit onto it
+        //Renderer::BindScreenBuffer();
+        //Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        Renderer::Blit(renderedTexture.GetID(), 0, winSize);
+        // should draw the texture onto the screen
+        // BUT IT DOESNT?
+        Renderer::Blit(renderTexture.colourBuffer->GetID(), 0, winSize);
 
         Behaviour::UpdateBehaviours();
         
@@ -136,25 +140,23 @@ int main(void)
         r += increment;
 
         // cursor difference to last frame
-        double diffX = 0;
-        double diffY = 0;
         if (prevCursorPosX != -1.0)
         {
-            diffX = Input::cursorPosX - prevCursorPosX;
-            diffY = Input::cursorPosY - prevCursorPosY;
+            Input::diffX = Input::cursorPosX - prevCursorPosX;
+            Input::diffY = Input::cursorPosY - prevCursorPosY;
         }
         prevCursorPosX = Input::cursorPosX;
         prevCursorPosY = Input::cursorPosY;
 
         // rotation magic ???
         //rotX -= diffX / 120.0f;
-        rotY -= diffY / 120.0f; 
+        rotY -= Input::diffY / 120.0f;
         rotY = FMaths::Clamp(rotY, -halfPI, halfPI);
 
-        playerCam.transform->SetRotation(Vector3((float)rotY, 0.0f, 0.0f));
-        player.transform->Rotate(Vector3(0.0f, (float)-diffX / 120.0f, 0.0f));//SetRotation(Vector3(0.0f, (float)rotX, 0.0f));
+        playerCam.transform->SetLocalRot(Vector3((float)rotY, 0.0f, 0.0f));
+        player.transform->Rotate(Vector3(0.0f, (float)-Input::diffX / 120.0f, 0.0f));
 
-        std::cout << playerCam.transform->rotation.ToString() << std::endl;
+        //std::cout << playerCam.transform->rotation.ToString() << std::endl;
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

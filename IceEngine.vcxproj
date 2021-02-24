@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Mesh\MeshFilter.cpp" />
     <ClCompile Include="src\PlayerController.cpp" />
     <ClCompile Include="src\Behaviour.cpp" />
     <ClCompile Include="src\Maths\FMaths.cpp" />
     <ClCompile Include="src\Maths\Quaternion.cpp" />
-    <ClCompile Include="src\Graphics\RenderBuffer.cpp" />
     <ClCompile Include="src\Graphics\RenderTexture.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Graphics\Camera.cpp" />
@@ -43,8 +43,11 @@
     <ClCompile Include="src\Mesh\VertexBuffer.cpp" />
     <ClCompile Include="src\Mesh\VertexArray.cpp" />
     <ClCompile Include="src\Maths\Matrix4x4.cpp" />
+    <ClCompile Include="src\UI\Sprite.cpp" />
+    <ClCompile Include="src\UI\SpriteRenderer.cpp" />
     <ClCompile Include="src\UI\UI.cpp" />
     <ClCompile Include="src\UI\UIButton.cpp" />
+    <ClCompile Include="src\UI\UIPanel.cpp" />
     <ClCompile Include="src\Utilities\ListUtils.cpp" />
     <ClCompile Include="src\Utilities\StringUtils.cpp" />
     <ClCompile Include="src\Graphics\Texture2D.cpp" />
@@ -63,24 +66,24 @@
     <ClInclude Include="include\Matrix.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Renderer.h" />
-    <ClInclude Include="include\RenderTexture.h" />
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\Vector.h" />
     <ClInclude Include="include\VertexBuffer.h" />
     <ClInclude Include="include\VertexArray.h" />
     <ClInclude Include="include\Input.h" />
     <ClInclude Include="include\StringUtils.h" />
-    <ClInclude Include="include\RenderBuffer.h" />
-    <ClInclude Include="include\Texture2D.h" />
     <ClInclude Include="include\Quaternion.h" />
     <ClInclude Include="include\Transform.h" />
     <ClInclude Include="include\PlayerController.h" />
     <ClInclude Include="include\Time.h" />
     <ClInclude Include="include\UI.h" />
+    <ClInclude Include="include\Texture.h" />
+    <ClInclude Include="include\MeshFilter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\Blit.shader" />
+    <None Include="res\shaders\Sprite.shader" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

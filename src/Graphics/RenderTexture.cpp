@@ -1,68 +1,58 @@
-#include "RenderTexture.h"
+#include "Texture.h"
 #include <iostream>
 
-RenderTexture::RenderTexture()
+RenderTexture::RenderTexture(int width, int height, Format depth, Format colour)
+	: Texture(2)
 {
-	ConstructBuffer();
+	this->id = -1;
+	this->width = width;
+	this->height = height;
+	this->depthFormat = depth;
+	this->colourFormat = colour;
 }
-/*
-RenderTexture::RenderTexture(const RenderTexture& obj)
-{
-	this->id = obj.id;
-	this->renderTextureConstructed = obj.renderTextureConstructed;
-}
-
-RenderTexture::RenderTexture(RenderTexture&& obj) noexcept
-{
-	this->id = obj.id;
-	obj.id = -1;
-	this->renderTextureConstructed = obj.renderTextureConstructed;
-	obj.renderTextureConstructed = false;
-}*/
 
 RenderTexture::~RenderTexture()
 {
-	if (renderTextureConstructed)
+	if (generatedBuffers)
+	{
 		glDeleteFramebuffers(1, &id);
+		delete colourBuffer;
+		if (depthFormat != Format::None)
+			delete depthBuffer;
+	}
 }
 
-void RenderTexture::SetAttachment(AttachmentType type, const RenderBuffer& obj)
+// creates rendertexture and tex2d buffers
+// DONT TRY TO USE RENDERTEXTURE BEFORE CALLING THIS
+void RenderTexture::GenerateBuffers()
 {
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, (int)type, GL_RENDERBUFFER, obj.GetID());
+	// generate and bind framebuffer (render texture)
+	glGenFramebuffers(1, &id);
+	Bind();
+
+	// create colourBuffer and assign to framebuffer
+	colourBuffer = new Texture2D(colourFormat, Vector2i(width, height), 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colourBuffer->GetID(), 0);
+
+	if (depthFormat != Format::None)
+	{
+		// create depthBuffer amd assign to framebuffer
+		depthBuffer = new Texture2D(depthFormat, Vector2i(width, height), 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthBuffer->GetID(), 0);
+	}
+
+	// make sure correct colour attachment is being used
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	generatedBuffers = true;
 }
 
-void RenderTexture::SetAttachment(AttachmentType type, const Texture2D& obj, int lod)
-{
-	glFramebufferTexture(GL_FRAMEBUFFER, (int)type, obj.GetID(), lod);
-}
-
-void RenderTexture::SetDrawBuffers(unsigned int size, const AttachmentType* buffers) const
-{
-	glDrawBuffers(size, (GLenum*)buffers);
-}
-
+// makes sure nothing is broken
 bool RenderTexture::TextureOK() const
 {
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		return false;
 	return true;
 }
-/*
-RenderTexture& RenderTexture::operator=(const RenderTexture& other)
-{
-	this->id = other.id;
-	this->renderTextureConstructed = other.renderTextureConstructed;
-	return *this;
-}
-
-RenderTexture& RenderTexture::operator=(RenderTexture&& other) noexcept
-{
-	this->id = other.id;
-	other.id = -1;
-	this->renderTextureConstructed = other.renderTextureConstructed;
-	other.renderTextureConstructed = false;
-	return *this;
-}*/
 
 void RenderTexture::Bind() const
 {
@@ -72,11 +62,4 @@ void RenderTexture::Bind() const
 void RenderTexture::Unbind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void RenderTexture::ConstructBuffer()
-{
-	glGenFramebuffers(1, &id);
-	Bind();
-	renderTextureConstructed = true;
 }

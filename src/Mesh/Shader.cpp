@@ -13,6 +13,9 @@ struct ShaderProgramSource
     std::string fragmentSource;
     bool zwrite;
     bool cull;
+    bool blend;
+    BlendType srcblendtype{ BlendType::SrcAlpha };
+    BlendType destblendtype{ BlendType::OneMinusSrcAlpha };
 };
 
 Shader::Shader() { }
@@ -23,6 +26,9 @@ Shader::Shader(const std::string& filepath)
     id = CreateShader(src.vertexSource, src.fragmentSource);
     zwriteon = src.zwrite;
     cullon = src.cull;
+    blendon = src.blend;
+    srcblend = src.srcblendtype;
+    destblend = src.destblendtype;
 }
 
 Shader::Shader(const Shader& obj)
@@ -30,6 +36,9 @@ Shader::Shader(const Shader& obj)
     this->id = obj.id;
     this->zwriteon = obj.zwriteon;
     this->cullon = obj.cullon;
+    this->blendon = obj.blendon;
+    this->srcblend = obj.srcblend;
+    this->destblend = obj.destblend;
 }
 
 Shader::Shader(Shader&& obj) noexcept
@@ -40,6 +49,12 @@ Shader::Shader(Shader&& obj) noexcept
     obj.zwriteon = true;
     this->cullon = obj.cullon;
     obj.cullon = true;
+    this->blendon = obj.blendon;
+    obj.blendon = false;
+    this->srcblend = obj.srcblend;
+    obj.srcblend = BlendType::SrcAlpha;
+    this->destblend = obj.destblend;
+    obj.destblend = BlendType::OneMinusSrcAlpha;
 }
 
 Shader::~Shader()
@@ -59,6 +74,9 @@ Shader& Shader::operator=(const Shader& other)
     this->id = other.id;
     this->zwriteon = other.zwriteon;
     this->cullon = other.cullon;
+    this->blendon = other.blendon;
+    this->srcblend = other.srcblend;
+    this->destblend = other.destblend;
     return *this;
 }
 
@@ -70,6 +88,12 @@ Shader& Shader::operator=(Shader&& other) noexcept
     other.zwriteon = true;
     this->cullon = other.cullon;
     other.cullon = true;
+    this->blendon = other.blendon;
+    other.blendon = false;
+    this->srcblend = other.srcblend;
+    other.srcblend = BlendType::SrcAlpha;
+    this->destblend = other.destblend;
+    other.destblend = BlendType::OneMinusSrcAlpha;
     return *this;
 }
 
@@ -85,6 +109,11 @@ void Shader::Bind() const
         glEnable(GL_CULL_FACE);
     else
         glDisable(GL_CULL_FACE);
+    if (blendon)
+        glEnable(GL_BLEND);
+    else
+        glDisable(GL_BLEND);
+    glBlendFunc(srcblend, destblend);
     glUseProgram(id);
 }
 
@@ -98,6 +127,11 @@ shader #subscripts:
 #shader [type] - type is vertex or fragment, denotes the shader section
 #zwrite [off/on] - whether to write to the zbuffer
 #cull [off/on] - whether to cull
+#blend [off/on] - whether to use blending
+#blendsrc [blendtype]; - must use semicolon to remove ambiguity
+#blenddest [blendtype]; - must use semicolon to remove ambiguity
+
+blendtype - Zero, One, SrcColour, SrcAlpha, OneMinusSrcAlpha, ConstantColour, ConstantAlpha
 */
 
 ShaderProgramSource Shader::ParseShader(const std::string& filepath)
@@ -113,6 +147,9 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
 
     bool zwrite = true;
     bool cull = true;
+    bool blend = false;
+    BlendType srcblend = BlendType::SrcAlpha;
+    BlendType destblend = BlendType::OneMinusSrcAlpha;
 
     ShaderType type = ShaderType::NONE;
     while (getline(stream, line))
@@ -121,6 +158,23 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
         bool option = false;
         if (line.find("on") != std::string::npos)
             option = true;
+
+        // for blend type
+        BlendType blendType = BlendType::Zero;
+        if (line.find("Zero") != std::string::npos)
+            blendType = BlendType::Zero;
+        else if (line.find("One") != std::string::npos)
+            blendType = BlendType::One;
+        else if (line.find("SrcColour") != std::string::npos)
+            blendType = BlendType::SrcColour;
+        else if (line.find("SrcAlpha") != std::string::npos)
+            blendType = BlendType::SrcAlpha;
+        if (line.find("OneMinusSrcAlpha") != std::string::npos)
+            blendType = BlendType::OneMinusSrcAlpha;
+        else if (line.find("ConstantColour") != std::string::npos)
+            blendType = BlendType::ConstantColour;
+        else if (line.find("ConstantAlpha") != std::string::npos)
+            blendType = BlendType::ConstantAlpha;
 
         // shader type
         if (line.find("#shader") != std::string::npos)
@@ -132,11 +186,18 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
         }
 
         // zwrite on
-        else if (line.find("#zwrite") != std::string::npos)
-            zwrite = option; 
+        else if (line.find("#zwrite ") != std::string::npos)
+            zwrite = option;
         // cull on
-        else if (line.find("#cull") != std::string::npos)
+        else if (line.find("#cull ") != std::string::npos)
             cull = option;
+        // blending
+        else if (line.find("#blend ") != std::string::npos)
+            blend = option;
+        else if (line.find("#blendsrc ") != std::string::npos)
+            srcblend = blendType;
+        else if (line.find("#blenddest ") != std::string::npos)
+            destblend = blendType;
 
         else if (type != ShaderType::NONE)
         {
@@ -144,7 +205,7 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
         }
     }
 
-    return { ss[0].str(), ss[1].str(), zwrite, cull };
+    return { ss[0].str(), ss[1].str(), zwrite, cull, blend, srcblend, destblend };
 }
 
 unsigned int Shader::CompileShader(const std::string& source, unsigned int type)

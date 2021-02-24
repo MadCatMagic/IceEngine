@@ -71,6 +71,11 @@ Quaternion Quaternion::operator*(const Quaternion& a) const
     );
 }
 
+Quaternion Quaternion::operator/(const Quaternion& a) const
+{
+    return *this * Quaternion::Conjugate(a);
+}
+
 Quaternion& Quaternion::operator+=(const Quaternion& a)
 {
     this->w += a.w;

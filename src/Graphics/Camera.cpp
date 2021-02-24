@@ -40,8 +40,8 @@ Matrix4x4 Camera::GetViewMatrix(const Transform& transform)
 	// you have to use the conjugate for correct camera movement
 	// I DONT KNOW WHY WTF
 	return Matrix4x4::LookAt(
-		transform.position, 
-		transform.position + transform.rotation.RotateVector(Vector3(0.0f, 0.0f, -1.0f)), 
+		transform.GetPos(), 
+		transform.GetPos() + transform.GetRot().RotateVector(Vector3(0.0f, 0.0f, -1.0f)),
 		Vector3(0.0f, 1.0f, 0.0f)
 	);
 }

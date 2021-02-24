@@ -1,10 +1,30 @@
 #include "UI.h"
+#include <iostream>
 
 namespace UI
 {
-	extern void Initialize(Vector2i windowSize)
+    namespace
+    {
+        static bool textureSetup = false;
+        static RenderTexture* renderTexture;
+        static Texture2D* renderedTexture;
+    }
+    Vector2 pixelsPerUnit = Vector2::one;
+    Vector2i winSize = Vector2i::zero;
+
+	void Initialize(const Vector2i& windowSize)
 	{
-		pixelsPerUnit.x = windowSize.x / 2.0f;
-		pixelsPerUnit.y = windowSize.y / 2.0f;
+		pixelsPerUnit.x = (float)(windowSize.x / 2.0f);
+		pixelsPerUnit.y = (float)(windowSize.y / 2.0f);
+        
+        winSize = windowSize;
 	}
+
+    void RenderUI(RenderTexture* dest)
+    {
+        // Render to renderTexture
+        dest->Bind();
+        Renderer::Viewport(winSize);
+        Element::DrawElements();
+    }
 }

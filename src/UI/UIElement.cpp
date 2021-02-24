@@ -1,10 +1,11 @@
 #include "UI.h"
+#include <iostream>
 
 namespace UI
 {
 	void Element::HandleMouseClick(int action, Vector2i location) { }
 
-	void Element::Draw() const { }
+	void Element::Draw() { }
 
 	void Element::AssignChild(Element* child)
 	{
@@ -25,12 +26,13 @@ namespace UI
 		else
 			localPosition = position;
 		UpdateGlobalPosition();
+		OnTransform();
 	}
 
 	void Element::SetPosition(const Vector2& pos)
 	{
-		pixelPosition.x = pos.x * pixelsPerUnit.x;
-		pixelPosition.y = pos.y * pixelsPerUnit.y;
+		pixelPosition.x = (int)(pos.x * pixelsPerUnit.x);
+		pixelPosition.y = (int)(pos.y * pixelsPerUnit.y);
 		if (parent != nullptr)
 		{
 			localPosition.x = position.x - parent->position.x;
@@ -39,14 +41,16 @@ namespace UI
 		else
 			localPosition = position;
 		UpdateGlobalPosition();
+		OnTransform();
 	}
 
 	void Element::SetLocalPosition(const Vector2& pos)
 	{
 		localPosition = pos;
 		UpdateGlobalPosition();
-		pixelPosition.x = position.x * pixelsPerUnit.x;
-		pixelPosition.y = position.y * pixelsPerUnit.y;
+		pixelPosition.x = (int)(position.x * pixelsPerUnit.x);
+		pixelPosition.y = (int)(position.y * pixelsPerUnit.y);
+		OnTransform();
 	}
 
 	void Element::SetGlobalScale(const Vector2& scale)
@@ -59,12 +63,20 @@ namespace UI
 		}
 		else
 			localScale = scale;
+		OnTransform();
 	}
 
 	void Element::SetLocalScale(const Vector2& scale)
 	{
 		localScale = scale;
 		UpdateGlobalScale();
+		OnTransform();
+	}
+
+	void Element::DrawElements()
+	{
+		for (Element* element : elements)
+			element->Draw();
 	}
 
 	void Element::UpdateGlobalPosition()
@@ -89,4 +101,6 @@ namespace UI
 		for (Element* element : children)
 			element->UpdateGlobalScale();
 	}
+
+	std::vector<Element*> Element::elements = std::vector<Element*>();
 }

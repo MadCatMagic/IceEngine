@@ -27,8 +27,10 @@ namespace Input
 	void SetCursorType(CursorType type, GLFWwindow* window);
 	void EnableRawCursorData(GLFWwindow* window);
 	
-	extern double cursorPosX;
-	extern double cursorPosY;
+	extern float cursorPosX;
+	extern float cursorPosY;
+	extern float diffX;
+	extern float diffY;
 
 	// all
 	void EnableInput(GLFWwindow* window);

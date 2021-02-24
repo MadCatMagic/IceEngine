@@ -45,13 +45,15 @@ namespace Input
 
 	}
 
-	double cursorPosX = 0.0;
-	double cursorPosY = 0.0;
+	float cursorPosX = 0.0;
+	float cursorPosY = 0.0;
+	float diffX = 0.0f;
+	float diffY = 0.0f;
 
 	static void CursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
 	{
-		cursorPosX = xpos;
-		cursorPosY = ypos;
+		cursorPosX = (float)xpos;
+		cursorPosY = (float)ypos;
 	}
 
 	void SetCursorType(CursorType type, GLFWwindow* window)

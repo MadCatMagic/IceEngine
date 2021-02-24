@@ -7,14 +7,15 @@
 
 namespace Renderer
 {
-	void DebugEnable();
-	void Init(bool debugEnable);
+	extern void DebugEnable();
+	extern void Init(bool debugEnable);
 
-	void ClearScreen(GLbitfield mask);
-	void Viewport(const Vector2i& size);
-	void Viewport(const Vector2i& size, const Vector2i& offset);
+	extern void ClearScreen(GLbitfield mask);
+	extern void Viewport(const Vector2i& size);
+	extern void Viewport(const Vector2i& size, const Vector2i& offset);
+	extern void BindScreenBuffer();
 
-	void Blit(int src, int dest, const Vector2i& winSize);
+	extern void Blit(int src, int dest, const Vector2i& winSize);
 
-	void Release();
+	extern void Release();
 }

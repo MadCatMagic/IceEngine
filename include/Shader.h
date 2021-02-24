@@ -1,10 +1,15 @@
 #pragma once
 
+enum BlendType {
+    Zero = GL_ZERO, One = GL_ONE, SrcColour = GL_SRC_COLOR, 
+    SrcAlpha = GL_SRC_ALPHA, OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA, 
+    ConstantColour = GL_CONSTANT_COLOR, ConstantAlpha = GL_CONSTANT_ALPHA
+};
+
+struct ShaderProgramSource;
 // self contained shader class
 // give it a directory and it will parse the shader, compile it, 
 // and create a program id for use with mesh
-
-struct ShaderProgramSource;
 class Shader
 {
 public:
@@ -26,6 +31,9 @@ public:
 private:
     bool zwriteon{};
     bool cullon{};
+    bool blendon{};
+    BlendType srcblend{ BlendType::SrcAlpha };
+    BlendType destblend{ BlendType::OneMinusSrcAlpha };
 
     ShaderProgramSource ParseShader(const std::string& filepath);                                  // splits shader into vert + frag
     unsigned int CompileShader(const std::string& source, unsigned int type);                      // compiles one shader

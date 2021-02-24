@@ -22,6 +22,7 @@ public:
 	Quaternion operator-() const;
 	Quaternion operator-(const Quaternion& a) const;
 	Quaternion operator*(const Quaternion& a) const;
+	Quaternion operator/(const Quaternion& a) const;
 	Quaternion& operator+=(const Quaternion& a);
 	Quaternion& operator-=(const Quaternion& a);
 	Quaternion& operator*=(const Quaternion& a);
