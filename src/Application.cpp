@@ -14,7 +14,6 @@
 #include "FMaths.h"
 
 #include "Camera.h"
-#include "Texture.h"
 #include "Entity.h"
 #include "PlayerController.h"
 
@@ -63,7 +62,13 @@ int main(void)
     pc->SetCam(&cam);
 
     // button testing
-    UI::Button button = UI::Button(Vector2i(50, 50), Vector2i(-100, -100));
+    UI::Sprite buttonSprite = UI::Sprite("res/sprites/pleasedonotthecat.png");
+    buttonSprite.LoadTexture();
+    UI::Button button = UI::Button(Vector2i(100, 100), Vector2i(-200, -200), &buttonSprite);
+
+    // text testing
+    UI::Text text = UI::Text(60, Vector2i(200, 200), "EeeG..!", "res/fonts/Helvetica.ttf");
+    text.CreateRenderer();
 
 	Shader shader = Shader("res/shaders/Basic.shader");
     Material mat = Material(shader);
@@ -71,11 +76,8 @@ int main(void)
     
     // texture stufffff
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-    RenderTexture renderTexture = RenderTexture(winSize.x, winSize.y, Texture::Format::Depth, Texture::Format::RGBA);
+    RenderTexture renderTexture = RenderTexture(winSize.x, winSize.y, Texture::Format::Depth, Texture::Format::RGB);
     renderTexture.GenerateBuffers();
-
-    if (!renderTexture.TextureOK())
-        std::cout << "rendertexture error" << std::endl;
 
     float r = 0.0f;
     float increment = 0.05f;
@@ -88,7 +90,7 @@ int main(void)
     float prevCursorPosX = -1.0;
     float prevCursorPosY = -1.0;
     float rotY = 0.0f;
-    glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+    
     const float halfPI = 1.5705f;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -121,13 +123,12 @@ int main(void)
         mesh.Unbind();
 
         // renders the ui ontop
-        //UI::RenderUI(&renderTexture);
+        UI::RenderUI(&renderTexture);
         // clears the screen ready for the new rendertexture to be blit onto it
-        //Renderer::BindScreenBuffer();
-        //Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        Renderer::BindScreenBuffer();
+        Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         // should draw the texture onto the screen
-        // BUT IT DOESNT?
         Renderer::Blit(renderTexture.colourBuffer->GetID(), 0, winSize);
 
         Behaviour::UpdateBehaviours();
@@ -168,6 +169,7 @@ int main(void)
     // clean up
     Renderer::Release();
     Behaviour::ReleaseBehaviours();
+    UI::SpriteRenderer::ReleaseRenderer();
 
     glfwTerminate();
     return 0;

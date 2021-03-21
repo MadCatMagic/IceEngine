@@ -61,3 +61,7 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+# ignore dependancies folder in code breakdown
+dependancies/* linguist-vendored
+

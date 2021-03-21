@@ -1,11 +1,5 @@
 #pragma once
 
-enum BlendType {
-    Zero = GL_ZERO, One = GL_ONE, SrcColour = GL_SRC_COLOR, 
-    SrcAlpha = GL_SRC_ALPHA, OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA, 
-    ConstantColour = GL_CONSTANT_COLOR, ConstantAlpha = GL_CONSTANT_ALPHA
-};
-
 struct ShaderProgramSource;
 // self contained shader class
 // give it a directory and it will parse the shader, compile it, 
@@ -13,6 +7,12 @@ struct ShaderProgramSource;
 class Shader
 {
 public:
+    enum class BlendType {
+        Zero = GL_ZERO, One = GL_ONE, SrcColour = GL_SRC_COLOR,
+        SrcAlpha = GL_SRC_ALPHA, OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA,
+        ConstantColour = GL_CONSTANT_COLOR, ConstantAlpha = GL_CONSTANT_ALPHA
+    };
+
     unsigned int id = -1;                // program id
     Shader();
     Shader(const std::string& filepath); // constructor
