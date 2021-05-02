@@ -13,8 +13,7 @@ varying vec4 nColour;
 
 void main() {
     nColour = normal * 0.5 + 0.5;
-    vec4 tempPos = position * modelMatrix;
-    gl_Position = projectionMatrix * position;
+    gl_Position = projectionMatrix * modelMatrix * position;
 }
 
 #shader fragment

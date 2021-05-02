@@ -27,7 +27,7 @@ int main(void)
     if (!glfwInit())
         return -1;
 
-    const Vector2i winSize(1280, 960);
+    const Vector2i winSize(1600, 900);
     /* Create a windowed mode window and its OpenGL context */
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
     window = glfwCreateWindow(winSize.x, winSize.y, "IceEngine", NULL, NULL);
@@ -61,7 +61,7 @@ int main(void)
     ei->SelectEntity(&playerCam);
 
     const float PI = 3.14159265359f;
-	Camera cam = Camera(0.1f, 50.0f, 90.0f * (PI / 180.0f), winSize.y / winSize.x);
+	Camera cam = Camera(0.1f, 50.0f, 120.0f * (PI / 180.0f), (float)winSize.x / (float)winSize.y);
     pc->SetCam(&cam);
 
     // button testing
@@ -76,9 +76,7 @@ int main(void)
 
     // mesh filter brings it all together
     Entity monke = Entity();
-    monke.transform->Move(Vector3(5, 1, 1));
     monke.transform->Rotate(Vector3(2.0f, 1.0f, 0.0f));
-    monke.transform->SetLocalScale(Vector3::one * 4.0f);
     MeshFilter* monkeFilter = monke.AddBehaviour<MeshFilter>();
     monkeFilter->SetMesh(&mesh);
     monkeFilter->SetMat(&mat);
@@ -136,8 +134,8 @@ int main(void)
         // drawing stuff
         mat.Bind();
         mat.SetVector4("setColour", Vector4(r, 0.0f, 1.0f - r, 1.0f));
-        monkeFilter->DrawMesh(&cam);
         axisFilter->DrawMesh(&cam);
+        monkeFilter->DrawMesh(&cam);
 
         // renders the ui ontop
         UI::RenderUI(&renderTexture);

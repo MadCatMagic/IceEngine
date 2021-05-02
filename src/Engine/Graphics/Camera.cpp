@@ -18,13 +18,13 @@ Camera::~Camera() { }
 // from world to screen space
 Matrix4x4 Camera::GetProjectionMatrix()
 {
-	const float h = cos(0.5f * fov) / sin(0.5f * fov);
-	const float w = h * widthHeightRatio;
+	const float f = 1.0f / tan(fov * 0.5f);
+	const float q = zFar / (zFar - zNear);
 	Matrix4x4 matrix = Matrix4x4(
-		Vector4(   w, 0.0f, 0.0f, 0.0f),
-		Vector4(0.0f,    h, 0.0f, 0.0f),
-		Vector4(0.0f, 0.0f, zFar / (zNear - zFar), 1.0f),
-		Vector4(0.0f, 0.0f, -(zFar * zNear) / (zFar - zNear), 0.0f)
+		Vector4(f, 0.0f, 0.0f, 0.0f),
+		Vector4(0.0f, f * widthHeightRatio, 0.0f, 0.0f),
+		Vector4(0.0f, 0.0f, q, 1.0f),
+		Vector4(0.0f, 0.0f, -zNear * q, 0.0f)
 	);
 	// multiply by view matrix
 	matrix = matrix * GetViewMatrix();

@@ -68,7 +68,7 @@ Matrix4x4 Transform::TransformationMatrix()
     Matrix4x4 scale = Matrix4x4(Vector4(globalScale.x, globalScale.y, globalScale.z, 1));
     Matrix4x4 rot = rotation.GetRotationMatrix();
     
-    return scale;
+    return pos * scale * rot;
 }
 
 void Transform::Move(const Vector3& move)

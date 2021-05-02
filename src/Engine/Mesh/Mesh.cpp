@@ -149,6 +149,7 @@ MeshData Mesh::ReadMeshFile(const std::string& filepath)
 			}
 		}
 	}
+	stream.close();
 	std::cout << "read file" << std::endl;
 	return ConsolidateVertexData(vertices, normals, &faces[0], faces.size());
 }
@@ -160,6 +161,8 @@ MeshData Mesh::ConsolidateVertexData(
 {
 	static std::vector <VertexData> vertexData;
 	static std::vector <unsigned int> faceData;
+	vertexData.clear();
+	faceData.clear();
 
 	// loop through each face
 	for (unsigned int i = 0; i < faceCount; i++)
