@@ -18,8 +18,12 @@ public:
 	Behaviour& operator=(const Behaviour& other);
 	Behaviour& operator=(Behaviour&& other) noexcept;
 
-	virtual void Update();
+	// called before the first frame
+	inline virtual void Start() {};
+	// called every frame
+	inline virtual void Update() {};
 
+	static void StartBehaviours();
 	static void UpdateBehaviours();
 	static void ReleaseBehaviours();
 private:

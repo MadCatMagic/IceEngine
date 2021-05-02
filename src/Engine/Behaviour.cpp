@@ -40,8 +40,10 @@ Behaviour& Behaviour::operator=(Behaviour&& other) noexcept
 	return *this;
 }
 
-void Behaviour::Update()
+void Behaviour::StartBehaviours()
 {
+	for (Behaviour* obj : behaviourList)
+		obj->Start();
 }
 
 void Behaviour::UpdateBehaviours()

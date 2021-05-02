@@ -1,6 +1,7 @@
 #pragma once
 #include "Behaviour.h"
 #include "Mesh.h"
+#include "Camera.h"
 
 #include <vector>
 
@@ -16,6 +17,10 @@ public:
 
 	void SetMesh(Mesh* mesh);
 	void SetMat(Material* mat);
+
+	void DrawMesh(Camera* cam);
+
+	static inline std::vector<MeshFilter>* GetMeshFilters() { return &meshArray; };
 
 private:
 	static std::vector<MeshFilter> meshArray;

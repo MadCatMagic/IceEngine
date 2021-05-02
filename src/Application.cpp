@@ -11,11 +11,13 @@
 #include "Input.h"
 
 #include "Mesh.h"
+#include "MeshFilter.h"
 #include "FMaths.h"
 
 #include "Camera.h"
 #include "Entity.h"
 #include "PlayerController.h"
+#include "EntityInspector.h"
 
 int main(void)
 {
@@ -52,27 +54,40 @@ int main(void)
     // entity testing
     Entity player = Entity();
     Entity playerCam = Entity();
-    player.DefaultTransform();
-    playerCam.DefaultTransform();
 
     player.transform->AssignChild(playerCam.transform);
     PlayerController* pc = player.AddBehaviour<PlayerController>();
+    EntityInspector* ei = player.AddBehaviour<EntityInspector>();
+    ei->SelectEntity(&playerCam);
 
-	Camera cam = Camera(0.1f, 50.0f, 90.0f);
+    const float PI = 3.14159265359f;
+	Camera cam = Camera(0.1f, 50.0f, 90.0f * (PI / 180.0f), winSize.y / winSize.x);
     pc->SetCam(&cam);
 
     // button testing
-    UI::Sprite buttonSprite = UI::Sprite("res/sprites/pleasedonotthecat.png");
-    buttonSprite.LoadTexture();
-    UI::Button button = UI::Button(Vector2i(100, 100), Vector2i(-200, -200), &buttonSprite);
-
-    // text testing
-    UI::Text text = UI::Text(60, Vector2i(200, 200), "EeeG..!", "res/fonts/Helvetica.ttf");
-    text.CreateRenderer();
+    //UI::Sprite buttonSprite = UI::Sprite("res/sprites/pleasedonotthecat.png");
+    //buttonSprite.LoadTexture();
+    //UI::Button button = UI::Button(Vector2i(100, 100), Vector2i(-200, -200), &buttonSprite);
 
 	Shader shader = Shader("res/shaders/Basic.shader");
     Material mat = Material(shader);
-	Mesh mesh = Mesh(mat, "res/models/monke.obj");
+	Mesh mesh = Mesh("res/models/monke.obj");
+    Mesh axis = Mesh("res/models/Axis.obj");
+
+    // mesh filter brings it all together
+    Entity monke = Entity();
+    monke.transform->Move(Vector3(5, 1, 1));
+    monke.transform->Rotate(Vector3(2.0f, 1.0f, 0.0f));
+    monke.transform->SetLocalScale(Vector3::one * 4.0f);
+    MeshFilter* monkeFilter = monke.AddBehaviour<MeshFilter>();
+    monkeFilter->SetMesh(&mesh);
+    monkeFilter->SetMat(&mat);
+
+    // mesh filter brings it all together
+    Entity axise = Entity();
+    MeshFilter* axisFilter = axise.AddBehaviour<MeshFilter>();
+    axisFilter->SetMesh(&axis);
+    axisFilter->SetMat(&mat);
     
     // texture stufffff
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
@@ -90,7 +105,10 @@ int main(void)
     float prevCursorPosX = -1.0;
     float prevCursorPosY = -1.0;
     float rotY = 0.0f;
+    float rotX = 0.0f; // just used for logging
     
+    Behaviour::StartBehaviours();
+
     const float halfPI = 1.5705f;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -116,11 +134,10 @@ int main(void)
         Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // drawing stuff
-        mesh.Bind();
+        mat.Bind();
         mat.SetVector4("setColour", Vector4(r, 0.0f, 1.0f - r, 1.0f));
-        mat.SetMatrix4x4("projectionMatrix", pc->GetCamMatrix());
-        mesh.DrawMesh();
-        mesh.Unbind();
+        monkeFilter->DrawMesh(&cam);
+        axisFilter->DrawMesh(&cam);
 
         // renders the ui ontop
         UI::RenderUI(&renderTexture);
@@ -153,11 +170,10 @@ int main(void)
         //rotX -= diffX / 120.0f;
         rotY -= Input::diffY / 120.0f;
         rotY = FMaths::Clamp(rotY, -halfPI, halfPI);
+        rotX -= Input::diffX / 120.0f;
 
         playerCam.transform->SetLocalRot(Vector3((float)rotY, 0.0f, 0.0f));
         player.transform->Rotate(Vector3(0.0f, (float)-Input::diffX / 120.0f, 0.0f));
-
-        //std::cout << playerCam.transform->rotation.ToString() << std::endl;
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

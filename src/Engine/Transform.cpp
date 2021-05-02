@@ -61,14 +61,14 @@ Vector3 Transform::Up() const
     return rotation.RotateVector(Vector3(0.0f, 1.0f, 0.0f));
 }
 
-Matrix4x4 Transform::TransformationMatrix() const
+Matrix4x4 Transform::TransformationMatrix()
 {
     Matrix4x4 pos = Matrix4x4::identity;
     pos.m[3] = position.x; pos.m[7] = position.y; pos.m[11] = position.z;
     Matrix4x4 scale = Matrix4x4(Vector4(globalScale.x, globalScale.y, globalScale.z, 1));
     Matrix4x4 rot = rotation.GetRotationMatrix();
     
-    return pos * scale * rot;
+    return scale;
 }
 
 void Transform::Move(const Vector3& move)

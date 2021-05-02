@@ -16,6 +16,8 @@ struct ShaderProgramSource
     bool blend;
     Shader::BlendType srcblendtype{ Shader::BlendType::SrcAlpha };
     Shader::BlendType destblendtype{ Shader::BlendType::OneMinusSrcAlpha };
+
+    bool autoSetProjMatrix;
 };
 
 Shader::Shader() { }
@@ -29,6 +31,7 @@ Shader::Shader(const std::string& filepath)
     blendon = src.blend;
     srcblend = src.srcblendtype;
     destblend = src.destblendtype;
+    autoSetProjMatrix = src.autoSetProjMatrix;
 }
 
 Shader::Shader(const Shader& obj)
@@ -39,6 +42,7 @@ Shader::Shader(const Shader& obj)
     this->blendon = obj.blendon;
     this->srcblend = obj.srcblend;
     this->destblend = obj.destblend;
+    this->autoSetProjMatrix = obj.autoSetProjMatrix;
 }
 
 Shader::Shader(Shader&& obj) noexcept
@@ -55,6 +59,8 @@ Shader::Shader(Shader&& obj) noexcept
     obj.srcblend = BlendType::SrcAlpha;
     this->destblend = obj.destblend;
     obj.destblend = BlendType::OneMinusSrcAlpha;
+    this->autoSetProjMatrix = obj.autoSetProjMatrix;
+    obj.autoSetProjMatrix = false;
 }
 
 Shader::~Shader()
@@ -77,6 +83,7 @@ Shader& Shader::operator=(const Shader& other)
     this->blendon = other.blendon;
     this->srcblend = other.srcblend;
     this->destblend = other.destblend;
+    this->autoSetProjMatrix = other.autoSetProjMatrix;
     return *this;
 }
 
@@ -94,6 +101,8 @@ Shader& Shader::operator=(Shader&& other) noexcept
     other.srcblend = BlendType::SrcAlpha;
     this->destblend = other.destblend;
     other.destblend = BlendType::OneMinusSrcAlpha;
+    this->autoSetProjMatrix = other.autoSetProjMatrix;
+    other.autoSetProjMatrix = false;
     return *this;
 }
 
@@ -109,6 +118,7 @@ void Shader::Bind() const
         glEnable(GL_CULL_FACE);
     else
         glDisable(GL_CULL_FACE);
+    // blending
     if (blendon)
         glEnable(GL_BLEND);
     else
@@ -128,10 +138,12 @@ shader #subscripts:
 #zwrite [off/on] - whether to write to the zbuffer
 #cull [off/on] - whether to cull
 #blend [off/on] - whether to use blending
+
 #blendsrc [blendtype]; - must use semicolon to remove ambiguity
 #blenddest [blendtype]; - must use semicolon to remove ambiguity
-
 blendtype - Zero, One, SrcColour, SrcAlpha, OneMinusSrcAlpha, ConstantColour, ConstantAlpha
+
+#setProjectionMatrix [off/on] - sets the mat4x4 uniform "projectionMatrix" automatically
 */
 
 ShaderProgramSource Shader::ParseShader(const std::string& filepath)
@@ -150,6 +162,8 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
     bool blend = false;
     BlendType srcblend = BlendType::SrcAlpha;
     BlendType destblend = BlendType::OneMinusSrcAlpha;
+
+    bool setProjectionMatrix = false;
 
     ShaderType type = ShaderType::NONE;
     while (getline(stream, line))
@@ -199,13 +213,17 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
         else if (line.find("#blenddest ") != std::string::npos)
             destblend = blendType;
 
+        // automatically set projection matrix
+        else if (line.find("#setProjectionMatrix ") != std::string::npos)
+            setProjectionMatrix = option;
+
         else if (type != ShaderType::NONE)
         {
             ss[(int)type] << line << "\n";
         }
     }
 
-    return { ss[0].str(), ss[1].str(), zwrite, cull, blend, srcblend, destblend };
+    return { ss[0].str(), ss[1].str(), zwrite, cull, blend, srcblend, destblend, setProjectionMatrix };
 }
 
 unsigned int Shader::CompileShader(const std::string& source, unsigned int type)

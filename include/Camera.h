@@ -6,14 +6,17 @@ class Camera
 {
 public:
 	Camera();
-	Camera(float zNear, float zFar, float fov);
+	Camera(float zNear, float zFar, float fov, float widthHeightRatio);
 	~Camera();
 
 	float zNear{};
 	float zFar{};
 	float fov{};
+	float widthHeightRatio{};
 
-	Matrix4x4 GetProjectionMatrix(const Transform& transform);
-	Matrix4x4 GetViewMatrix(const Transform& transform);
+	Transform* transform{ nullptr };
+
+	Matrix4x4 GetProjectionMatrix();
+	Matrix4x4 GetViewMatrix();
 };
 

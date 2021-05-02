@@ -13,7 +13,6 @@ public:
 	Entity();
 	~Entity();
 
-	void DefaultTransform();
 	void AssignTransform(Transform* transform);
 
 	// way to assign behaviours

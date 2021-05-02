@@ -4,44 +4,42 @@
 
 Camera::Camera() { }
 
-Camera::Camera(float zNear, float zFar, float fov)
+Camera::Camera(float zNear, float zFar, float fov, float widthHeightRatio)
 {
 	this->zNear = zNear;
 	this->zFar = zFar;
 	this->fov = fov;
+	this->widthHeightRatio = widthHeightRatio;
 }
 
-Camera::~Camera()
-{
-
-}
+Camera::~Camera() { }
 
 // base projection matrix
 // from world to screen space
-Matrix4x4 Camera::GetProjectionMatrix(const Transform& transform)
+Matrix4x4 Camera::GetProjectionMatrix()
 {
-	float f = 1.0f / tan(fov / 2.0f);
-	float q = zFar / (zFar - zNear);
+	const float h = cos(0.5f * fov) / sin(0.5f * fov);
+	const float w = h * widthHeightRatio;
 	Matrix4x4 matrix = Matrix4x4(
-		Vector4(   f, 0.0f, 0.0f, 0.0f),
-		Vector4(0.0f,    f, 0.0f, 0.0f),
-		Vector4(0.0f, 0.0f,    q, 1.0f),
-		Vector4(0.0f, 0.0f, -zNear * q, 0.0f)
+		Vector4(   w, 0.0f, 0.0f, 0.0f),
+		Vector4(0.0f,    h, 0.0f, 0.0f),
+		Vector4(0.0f, 0.0f, zFar / (zNear - zFar), 1.0f),
+		Vector4(0.0f, 0.0f, -(zFar * zNear) / (zFar - zNear), 0.0f)
 	);
 	// multiply by view matrix
-	matrix = matrix * GetViewMatrix(transform);
+	matrix = matrix * GetViewMatrix();
 	return matrix;
 }
 
 // position translation matrix
 // from world to view space
-Matrix4x4 Camera::GetViewMatrix(const Transform& transform)
+Matrix4x4 Camera::GetViewMatrix()
 {
 	// you have to use the conjugate for correct camera movement
 	// I DONT KNOW WHY WTF
 	return Matrix4x4::LookAt(
-		transform.GetPos(), 
-		transform.GetPos() + transform.GetRot().RotateVector(Vector3(0.0f, 0.0f, -1.0f)),
+		transform->GetPos(), 
+		transform->GetPos() - transform->Forward(),
 		Vector3(0.0f, 1.0f, 0.0f)
 	);
 }

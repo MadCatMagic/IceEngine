@@ -23,7 +23,7 @@ struct Transform
 	Vector3 RightXZ() const;
 	Vector3 Up() const;
 
-	Matrix4x4 TransformationMatrix() const;
+	Matrix4x4 TransformationMatrix();
 
 	void Move(const Vector3& move);
 	void SetLocalPos(const Vector3& pos);

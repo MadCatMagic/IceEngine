@@ -26,9 +26,5 @@ void PlayerController::Update()
 void PlayerController::SetCam(Camera* camera)
 {
 	cam = camera;
-}
-
-Matrix4x4 PlayerController::GetCamMatrix() const
-{
-	return cam->GetProjectionMatrix(*transform->child);
+    cam->transform = this->transform->child;
 }

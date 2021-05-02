@@ -6,7 +6,7 @@
 #include "StringUtils.h"
 #include "ListUtils.h"
 
-Mesh::Mesh(Material& mat, VertexBuffer& vb, IndexBuffer& ib)
+Mesh::Mesh(VertexBuffer& vb, IndexBuffer& ib)
 	: vertexBuffer(vb), indexBuffer(ib)
 {
 	vertexArray.Construct(); 
@@ -14,14 +14,12 @@ Mesh::Mesh(Material& mat, VertexBuffer& vb, IndexBuffer& ib)
 	// it will not set correctly and will cause obscure errors later on when attempting to bind
 	// just use default vertexArray and construct it
 	vertexSize = 0;
-	material = mat;
 }
 
-Mesh::Mesh(Material& mat, const std::string& filepath)
+Mesh::Mesh(const std::string& filepath)
 {
 	vertexArray.Construct();
 	vertexSize = 0;
-	material = mat;
 	SetMeshFromFile(filepath);
 }
 
@@ -69,11 +67,6 @@ void Mesh::SetIndexBuffer(const unsigned int* data, unsigned int count)
 	indexBuffer = IndexBuffer(data, count);
 }
 
-void Mesh::DrawMesh() const
-{
-	glDrawElements(GL_TRIANGLES, indexBuffer.GetCount(), GL_UNSIGNED_INT, nullptr);
-}
-
 void Mesh::SetMeshFromFile(const std::string& filepath)
 {
 	MeshData data = ReadMeshFile(filepath);
@@ -86,7 +79,6 @@ void Mesh::Bind() const
 	vertexBuffer.Bind();
 	vertexArray.Bind();
 	indexBuffer.Bind();
-	material.Bind();
 }
 
 void Mesh::Unbind() const
@@ -94,7 +86,6 @@ void Mesh::Unbind() const
 	indexBuffer.Unbind();
 	vertexBuffer.Unbind();
 	vertexArray.Unbind();
-	material.Unbind();
 }
 
 Vector3 Mesh::TriangleNormal(const Vector3& v0, const Vector3& v1, const Vector3& v2)
@@ -142,7 +133,7 @@ MeshData Mesh::ReadMeshFile(const std::string& filepath)
 			// face
 			else if (identifier == "f")
 			{
-				MeshFace mf;
+				MeshFace mf = MeshFace();
 				for (int i = 0; i < 3; i++)
 				{
 					std::string vdatastr;

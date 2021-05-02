@@ -1,4 +1,4 @@
-#include "UI.h"
+#include "UI/TextRenderer.h"
 
 #include <iostream>
 
@@ -8,12 +8,21 @@ namespace UI
     {
         this->filepath = filepath;
         this->size = 0;
+        this->newlineOffset = 10;
     }
 
     TextRenderer::TextRenderer(const std::string& filepath, int size)
     {
         this->filepath = filepath;
         this->size = size;
+        this->newlineOffset = size;
+    }
+
+    TextRenderer::TextRenderer(const std::string& filepath, int size, int offset)
+    {
+        this->filepath = filepath;
+        this->size = size;
+        this->newlineOffset = offset;
     }
 
     TextRenderer::~TextRenderer()
@@ -26,6 +35,11 @@ namespace UI
     void TextRenderer::SetSize(unsigned int size)
     {
         this->size = size;
+    }
+
+    void TextRenderer::SetNewlineOffset(int offset)
+    {
+        this->newlineOffset = offset;
     }
 
     // EXPENSIVE OPERATION
@@ -86,6 +100,7 @@ namespace UI
 
         int x = (int)(pos.x * pixelsPerUnit.x);
         int y = (int)(pos.y * pixelsPerUnit.y);
+        int startx = x;
 
         // iterate through all characters
         std::string::const_iterator c;
@@ -116,7 +131,14 @@ namespace UI
             // render quad
             glDrawArrays(GL_TRIANGLES, 0, 6);
             // now advance cursors for next glyph
-            x += (int)((ch.advance >> 6) * scale); // bitshift by 6 to get value in pixels
+            x += (int)((ch.advance >> 6) * scale); // bitshift by 6 to get value in pixel
+            
+            // if newline offset by newlineOffset and put x to startx
+            if (*c == 10)
+            {
+                y -= newlineOffset;
+                x = startx;
+            }
         }
         textVA->DisableAttribute(0);
         textVA->DisableAttribute(1);

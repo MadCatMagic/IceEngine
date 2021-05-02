@@ -7,6 +7,8 @@
 
 class Texture2D;
 class RenderTexture;
+class Camera;
+class MeshFilter;
 
 namespace Renderer
 {

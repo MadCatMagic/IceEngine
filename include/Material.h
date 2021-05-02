@@ -31,6 +31,8 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
+	inline Shader* GetShaderReference() { return &shader; }
+
 private:
 	Shader shader;
 	std::unordered_map <std::string, int> uniformLocations;

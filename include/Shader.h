@@ -28,12 +28,16 @@ public:
     void Bind() const;
     void Unbind() const;
 
+    inline bool AutoSetProjMatrix() const { return autoSetProjMatrix; }
+
 private:
     bool zwriteon{};
     bool cullon{};
     bool blendon{};
     BlendType srcblend{ BlendType::SrcAlpha };
     BlendType destblend{ BlendType::OneMinusSrcAlpha };
+
+    bool autoSetProjMatrix{ false };
 
     ShaderProgramSource ParseShader(const std::string& filepath);                                  // splits shader into vert + frag
     unsigned int CompileShader(const std::string& source, unsigned int type);                      // compiles one shader

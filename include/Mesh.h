@@ -37,8 +37,8 @@ struct MeshFace {
 class Mesh
 {
 public:
-	Mesh(Material& mat, VertexBuffer& vb, IndexBuffer& ib);
-	Mesh(Material& mat, const std::string& filepath);
+	Mesh(VertexBuffer& vb, IndexBuffer& ib);
+	Mesh(const std::string& filepath);
 	~Mesh();
 
 	void AddVertexAttribute(int fsize); // offset is sum of previous types
@@ -48,7 +48,6 @@ public:
 	void SetVertexBuffer(const void* data, unsigned int size);
 	void SetIndexBuffer(const unsigned int* data, unsigned int count);
 
-	void DrawMesh() const;
 	void SetMeshFromFile(const std::string& filepath);
 
 	void Bind() const;
@@ -57,11 +56,12 @@ public:
 	inline VertexBuffer GetVertexBuffer() const { return vertexBuffer; }
 	inline IndexBuffer GetIndexBuffer() const { return indexBuffer; }
 
+	inline unsigned int GetIndexBufferSize() const { return indexBuffer.GetCount(); }
+	
 private:
 	VertexBuffer vertexBuffer;
 	VertexArray vertexArray;
 	IndexBuffer indexBuffer;
-	Material material;
 
 	std::list <int> typeList;
 	int vertexSize;

@@ -92,9 +92,9 @@ Vector3 Vector3::operator/(float a) const
 
 Vector3& Vector3::operator+=(const Vector3& a)
 {
-	x += a.x;
-	y += a.y;
-	z += a.z;
+	this->x += a.x;
+	this->y += a.y;
+	this->z += a.z;
 	return *this;
 }
 
