@@ -8,7 +8,7 @@
 class Texture2D;
 class RenderTexture;
 class Camera;
-class MeshFilter;
+class Light;
 
 namespace Renderer
 {
@@ -27,4 +27,7 @@ namespace Renderer
 	extern void BlitToScreen(RenderTexture src, const Vector2i& winSize);
 
 	extern void Release();
+
+	extern void RenderToCamera(Camera* cam);
+	extern void RenderLight(Light* light);
 }

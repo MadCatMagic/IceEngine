@@ -276,6 +276,41 @@ Matrix4x4 Matrix4x4::Rotation(const Vector3& euler)
 	);
 }
 
+Matrix4x4 Matrix4x4::ProjectionMatrix(float fov, float zNear, float zFar, float widthHeightRatio)
+{
+	const float f = (float)(1.0 / tan((double)fov * 0.5));
+	const float q = zFar / (zFar - zNear);
+	return Matrix4x4(
+		Vector4(f, 0.0f, 0.0f, 0.0f),
+		Vector4(0.0f, f * widthHeightRatio, 0.0f, 0.0f),
+		Vector4(0.0f, 0.0f, q, 1.0f),
+		Vector4(0.0f, 0.0f, -zNear * q, 0.0f)
+	);
+}
+
+Matrix4x4 Matrix4x4::ViewMatrix(const Vector3& pos, const Vector3& dir, const Vector3& up)
+{
+	// you have to use the conjugate for correct camera movement
+	// I DONT KNOW WHY WTF
+	return Matrix4x4::LookAt(
+		pos,
+		pos - dir,
+		up
+	);
+}
+
+// returns orthoganal projection matrix
+// here min represents (left, bottom, -near) and max represents (right, top, -far)
+Matrix4x4 Matrix4x4::OrthoMatrix(float left, float right, float bottom, float top, float near, float far)
+{
+	return Matrix4x4(
+		Vector4(2.0f / (right - left), 0.0f, 0.0f, -(right + left) / (right - left)),
+		Vector4(0.0f, 2.0f / (top - bottom), 0.0f, -(top + bottom) / (top - bottom)),
+		Vector4(0.0f, 0.0f, -2.0f / (near - far), -(far + near) / (far - near)),
+		Vector4(0.0f, 0.0f, 0.0f, 1.0f)
+	);
+}
+
 Matrix4x4 Matrix4x4::zero = Matrix4x4();
 
 Matrix4x4 Matrix4x4::identity = Matrix4x4(1.0f);

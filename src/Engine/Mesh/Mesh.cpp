@@ -1,10 +1,8 @@
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 #include "Mesh.h"
-#include "StringUtils.h"
-#include "ListUtils.h"
+#include "Utils.h"
 
 Mesh::Mesh(VertexBuffer& vb, IndexBuffer& ib)
 	: vertexBuffer(vb), indexBuffer(ib)
@@ -134,7 +132,7 @@ MeshData Mesh::ReadMeshFile(const std::string& filepath)
 			else if (identifier == "f")
 			{
 				MeshFace mf = MeshFace();
-				for (int i = 0; i < 3; i++)
+				for (int i = 2; i >= 0; i--)
 				{
 					std::string vdatastr;
 					ss >> vdatastr;
@@ -150,7 +148,6 @@ MeshData Mesh::ReadMeshFile(const std::string& filepath)
 		}
 	}
 	stream.close();
-	std::cout << "read file" << std::endl;
 	return ConsolidateVertexData(vertices, normals, &faces[0], faces.size());
 }
 
@@ -188,7 +185,6 @@ MeshData Mesh::ConsolidateVertexData(
 			}
 		}
 	}
-	std::cout << "consolidated vertices" << std::endl;
 	MeshData md = MeshData();
 	md.vertices = vertexData.data();
 	md.vertexCount = vertexData.size();
@@ -214,7 +210,6 @@ void Mesh::ConstructBuffersFromMeshData(const MeshData& meshData)
 	vvb = std::vector<float>(vBuffer);
 	vertexBuffer = VertexBuffer(&vvb[0], vvb.size() * sizeof(float));
 	indexBuffer = IndexBuffer(md.indices, md.indiceCount);
-	std::cout << "made buffers" << std::endl;
 }
 
 void Mesh::StandardVertexArray()

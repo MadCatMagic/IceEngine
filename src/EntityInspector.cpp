@@ -23,7 +23,7 @@ void EntityInspector::SetOffset(int offset)
 void EntityInspector::Start()
 {
 	// text testing
-	text = new UI::Text(15, Vector2i(-620, 460 - offset), "placeholder", "res/fonts/Helvetica.ttf");
+	text = new UI::Text(15, Vector2i(-620, 400 - offset), "placeholder", "res/fonts/Helvetica.ttf");
 	text->CreateRenderer();
 }
 

@@ -70,6 +70,7 @@ namespace UI
                 0, 
                 face->glyph->bitmap.buffer
             );
+            texture->CreateTexture();
 
             // now store character for later use
             Character character = {

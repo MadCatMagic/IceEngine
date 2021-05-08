@@ -22,6 +22,8 @@ Behaviour::Behaviour(Behaviour&& obj) noexcept
 
 Behaviour::~Behaviour()
 {
+	std::vector<Behaviour*>::iterator index = std::find(behaviourList.begin(), behaviourList.end(), this);
+	behaviourList.erase(index);
 }
 
 Behaviour& Behaviour::operator=(const Behaviour& other)

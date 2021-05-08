@@ -42,3 +42,6 @@ public:
 
 	static Quaternion identity;
 };
+
+extern float RadiiToDegrees(float angle);
+extern float DegreesToRadii(float angle);

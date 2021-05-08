@@ -5,6 +5,8 @@
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "Texture.h"
+#include "MeshFilter.h"
+#include "Light.h"
 
 namespace Renderer
 {
@@ -37,10 +39,15 @@ namespace Renderer
          1.0f,  1.0f, 0.0f,
     };
     
+    static void SetupLightMat();
+    static void BlitSetup();
+
     void Init(bool debugEnable)
     {
         if (debugEnable)
             DebugEnable();
+        SetupLightMat();
+        BlitSetup();
     }
 
     void ClearScreen(GLbitfield mask)
@@ -69,7 +76,20 @@ namespace Renderer
     static VertexArray* blitVA;
     static Shader* blitShader;
     static Material* blitMat;
-    static bool blitSetup{};
+
+    void BlitSetup()
+    {
+        // setup blit stuff
+        blitVB = new VertexBuffer(blitQuadData, sizeof(float) * 18);
+        blitVA = new VertexArray();
+        blitVA->Construct();
+        blitVA->EnableAttribute(0);
+        blitVA->FormatAttribute(0, 3, GL_FLOAT, false, 0, 0);
+        blitVA->DisableAttribute(0);
+        // Create and compile our GLSL program from the shaders
+        blitShader = new Shader("res/shaders/Blit.shader");
+        blitMat = new Material(*blitShader);
+    }
 
     void Blit(Texture2D src, RenderTexture dest)
     {
@@ -83,21 +103,6 @@ namespace Renderer
 
     void Blit(int src, int dest, const Vector2i& winSize)
     {
-        if (!blitSetup)
-        {
-            // setup blit stuff
-            blitVB = new VertexBuffer(blitQuadData, sizeof(float) * 18);
-            blitVA = new VertexArray();
-            blitVA->Construct();
-            blitVA->EnableAttribute(0);
-            blitVA->FormatAttribute(0, 3, GL_FLOAT, false, 0, 0);
-            blitVA->DisableAttribute(0);
-            // Create and compile our GLSL program from the shaders
-            blitShader = new Shader("res/shaders/Blit.shader");
-            blitMat = new Material(*blitShader);
-            blitSetup = true;
-        }
-
         // Render to the screen
         glBindFramebuffer(GL_FRAMEBUFFER, dest);
         Viewport(winSize);
@@ -131,11 +136,62 @@ namespace Renderer
         Blit(src.colourBuffer->GetID(), 0, winSize);
     }
 
+    void RenderToCamera(Camera* cam)
+    {
+        std::vector<MeshFilter*>* filters = MeshFilter::GetMeshFilters();
+        Matrix4x4 mvpMatrix = cam->GetProjectionMatrix();
+        for (MeshFilter* filter : *filters) {
+            if (filter->mesh != nullptr && filter->mat != nullptr)
+            {
+                filter->mesh->Bind();
+                filter->mat->Bind();
+                // automatically set the uniform projectionMatrix if the flag is set in mat's shader
+                if (filter->mat->GetShaderReference()->AutoSetProjMatrix())
+                {
+                    Matrix4x4 transMatrix = filter->transform->TransformationMatrix();
+                    filter->mat->SetMatrix4x4("projectionMatrix", mvpMatrix);
+                    filter->mat->SetMatrix4x4("modelMatrix", transMatrix);
+                }
+                glDrawElements(GL_TRIANGLES, filter->mesh->GetIndexBufferSize(), GL_UNSIGNED_INT, nullptr);
+            }
+        }
+    }
+
+    static Shader* lightShader;
+    static Material* lightMat;
+
+    void SetupLightMat() 
+    {
+        // Create and compile our GLSL program from the shaders
+        lightShader = new Shader("res/shaders/Light.shader");
+        lightMat = new Material(*lightShader);
+    }
+
+    void RenderLight(Light* light)
+    {
+        std::vector<MeshFilter*>* filters = MeshFilter::GetMeshFilters();
+        lightMat->Bind();
+        Matrix4x4 mvpMatrix = light->GetMatrix();
+        lightMat->SetMatrix4x4("projectionMatrix", mvpMatrix);
+        for (MeshFilter* filter : *filters) {
+            if (filter->mesh != nullptr)
+            {
+                filter->mesh->Bind();
+                Matrix4x4 transMatrix = filter->transform->TransformationMatrix();
+                lightMat->SetMatrix4x4("modelMatrix", transMatrix);
+                glDrawElements(GL_TRIANGLES, filter->mesh->GetIndexBufferSize(), GL_UNSIGNED_INT, nullptr);
+            }
+        }
+    }
+
     void Release()
     {
         delete blitVB;
         delete blitVA;
         delete blitShader;
         delete blitMat;
+
+        delete lightShader;
+        delete lightMat;
     }
 }

@@ -1,6 +1,10 @@
 #include "Colour.h"
 #include <stdexcept>
 
+Colour::Colour()
+	: r(1.0f), g(1.0f), b(1.0f), a(1.0f)
+{ }
+
 Colour::Colour(int r, int g, int b)
 	: r((float)r / 255.0f), g((float)g / 255.0f), b((float)b / 255.0f), a(1.0f)
 { }

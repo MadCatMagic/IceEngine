@@ -19,6 +19,10 @@
 #include "PlayerController.h"
 #include "EntityInspector.h"
 
+#include "Light.h"
+
+#define SHADOWMAPSIZE 4096
+
 int main(void)
 {
     GLFWwindow* window;
@@ -63,6 +67,7 @@ int main(void)
     const float PI = 3.14159265359f;
 	Camera cam = Camera(0.1f, 50.0f, 120.0f * (PI / 180.0f), (float)winSize.x / (float)winSize.y);
     pc->SetCam(&cam);
+    pc->transform->Move(Vector3(0.0f, 2.0f));
 
     // button testing
     //UI::Sprite buttonSprite = UI::Sprite("res/sprites/pleasedonotthecat.png");
@@ -73,10 +78,12 @@ int main(void)
     Material mat = Material(shader);
 	Mesh mesh = Mesh("res/models/monke.obj");
     Mesh axis = Mesh("res/models/Axis.obj");
+    Mesh sceneMesh = Mesh("res/models/scene2.obj");
 
+    /* MESH CREATION */
     // mesh filter brings it all together
     Entity monke = Entity();
-    monke.transform->Rotate(Vector3(2.0f, 1.0f, 0.0f));
+    monke.transform->Move(Vector3(-1.0f, 1.0f, 3.0f));
     MeshFilter* monkeFilter = monke.AddBehaviour<MeshFilter>();
     monkeFilter->SetMesh(&mesh);
     monkeFilter->SetMat(&mat);
@@ -86,7 +93,23 @@ int main(void)
     MeshFilter* axisFilter = axise.AddBehaviour<MeshFilter>();
     axisFilter->SetMesh(&axis);
     axisFilter->SetMat(&mat);
-    
+    // scene
+    Entity scenee = Entity();
+    MeshFilter* sceneFilter = scenee.AddBehaviour<MeshFilter>();
+    sceneFilter->SetMesh(&sceneMesh);
+    sceneFilter->SetMat(&mat);
+
+    /* LIGHT SETUP */
+    // entity with sun light facing nearly down
+    // NOTE: sun doesnt like being straight down - view matrix breaks or something
+    Entity lightEntity = Entity();
+    lightEntity.transform->Rotate(Vector3(DegreesToRadii(30.0f), 0.0f, DegreesToRadii(-20.0f)));
+    Light* light = lightEntity.AddBehaviour<Light>();
+
+    // light RenderTexture
+    RenderTexture lightTexture = RenderTexture(SHADOWMAPSIZE, SHADOWMAPSIZE, Texture::Format::Depth16, Texture::Format::None);
+    lightTexture.GenerateBuffers();
+
     // texture stufffff
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
     RenderTexture renderTexture = RenderTexture(winSize.x, winSize.y, Texture::Format::Depth, Texture::Format::RGB);
@@ -125,6 +148,13 @@ int main(void)
         Time::SetUDT(currentFrameTime - frameTime);
         frameTime = currentFrameTime;
 
+        // Render to lights
+        lightTexture.Bind();
+        Renderer::Viewport(Vector2i(SHADOWMAPSIZE, SHADOWMAPSIZE));
+        Renderer::ClearScreen(GL_DEPTH_BUFFER_BIT);
+
+        Renderer::RenderLight(light);
+
         // Render to renderTexture
         // rendertexture should be containing the drawn texture in renderTexture.colourBuffer
         renderTexture.Bind();
@@ -132,10 +162,15 @@ int main(void)
         Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // drawing stuff
+        lightTexture.depthBuffer->Bind();
         mat.Bind();
-        mat.SetVector4("setColour", Vector4(r, 0.0f, 1.0f - r, 1.0f));
-        axisFilter->DrawMesh(&cam);
-        monkeFilter->DrawMesh(&cam);
+        mat.SetMatrix4x4("lightSpaceMatrix", light->GetMatrix());
+        mat.SetTexture("shadowMap", 0);
+
+        mat.SetVector3("lightDir", -light->transform->Up());
+        mat.SetVector3("viewPos", player.transform->GetPos());
+
+        Renderer::RenderToCamera(&cam);
 
         // renders the ui ontop
         UI::RenderUI(&renderTexture);

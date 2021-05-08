@@ -18,11 +18,9 @@ public:
 	void SetMesh(Mesh* mesh);
 	void SetMat(Material* mat);
 
-	void DrawMesh(Camera* cam);
-
-	static inline std::vector<MeshFilter>* GetMeshFilters() { return &meshArray; };
+	static inline std::vector<MeshFilter*>* GetMeshFilters() { return &meshArray; };
 
 private:
-	static std::vector<MeshFilter> meshArray;
+	static std::vector<MeshFilter*> meshArray;
 };
 

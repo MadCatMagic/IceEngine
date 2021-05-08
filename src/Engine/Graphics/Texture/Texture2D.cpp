@@ -17,6 +17,7 @@ Texture2D::Texture2D(const std::string& filepath)
 	this->width = width;
 	this->height = height;
 	this->format = bytesPerPixel == 3 ? Format::RGB : Format::RGBA;
+	this->formatType = FormatType(format);
 	this->lod = 0;
 	CreateTexture(imageData);
 	stbi_image_free(imageData);
@@ -27,10 +28,10 @@ Texture2D::Texture2D(Format format, const Vector2i& size, unsigned int lod)
 {
 	id = -1;
 	this->format = format;
+	this->formatType = FormatType(format);
 	this->width = size.x;
 	this->height = size.y;
 	this->lod = lod;
-	CreateTexture();
 }
 
 Texture2D::Texture2D(Format format, const Vector2i& size, WrapMode wrapMode, unsigned int lod)
@@ -38,12 +39,11 @@ Texture2D::Texture2D(Format format, const Vector2i& size, WrapMode wrapMode, uns
 {
 	id = -1;
 	this->format = format;
+	this->formatType = FormatType(format);
 	this->width = size.x;
 	this->height = size.y;
 	this->lod = lod;
 	this->wrapMode = wrapMode;
-	CreateTexture();
-	ApplyFiltering();
 }
 
 Texture2D::Texture2D(Format format, const Vector2i& size, unsigned int lod, const void* data)
@@ -51,10 +51,10 @@ Texture2D::Texture2D(Format format, const Vector2i& size, unsigned int lod, cons
 {
 	id = -1;
 	this->format = format;
+	this->formatType = FormatType(format);
 	this->width = size.x;
 	this->height = size.y;
 	this->lod = lod;
-	CreateTexture(data);
 }
 
 Texture2D::Texture2D(Format format, const Vector2i& size, WrapMode wrapMode, unsigned int lod, const void* data)
@@ -62,12 +62,11 @@ Texture2D::Texture2D(Format format, const Vector2i& size, WrapMode wrapMode, uns
 {
 	id = -1;
 	this->format = format;
+	this->formatType = FormatType(format);
 	this->width = size.x;
 	this->height = size.y;
 	this->lod = lod;
 	this->wrapMode = wrapMode;
-	CreateTexture(data);
-	ApplyFiltering();
 }
 
 Texture2D::Texture2D(const Texture2D& obj)
@@ -75,6 +74,7 @@ Texture2D::Texture2D(const Texture2D& obj)
 {
 	this->id = obj.id;
 	this->format = obj.format;
+	this->formatType = obj.formatType;
 	this->wrapMode = obj.wrapMode;
 	this->width = obj.width;
 	this->height = obj.height;
@@ -88,6 +88,8 @@ Texture2D::Texture2D(Texture2D&& obj) noexcept
 	obj.id = -1;
 	this->format = obj.format;
 	obj.format = Format::RGBA;
+	this->formatType = obj.formatType;
+	obj.formatType = Format::RGBA;
 	this->wrapMode = obj.wrapMode;
 	obj.wrapMode = WrapMode::Repeat;
 	this->width = obj.width;
@@ -108,6 +110,7 @@ Texture2D& Texture2D::operator=(const Texture2D& other)
 {
 	this->id = other.id;
 	this->format = other.format;
+	this->formatType = other.formatType;
 	this->wrapMode = other.wrapMode;
 	this->width = other.width;
 	this->height = other.height;
@@ -121,6 +124,8 @@ Texture2D& Texture2D::operator=(Texture2D&& other) noexcept
 	other.id = -1;
 	this->format = other.format;
 	other.format = Format::RGBA;
+	this->formatType = other.formatType;
+	other.formatType = Format::RGBA;
 	this->wrapMode = other.wrapMode;
 	other.wrapMode = WrapMode::Repeat;
 	this->width = other.width;
@@ -155,7 +160,7 @@ void Texture2D::CreateTexture()
 {
 	glGenTextures(1, &id);
 	Bind();
-	glTexImage2D(GL_TEXTURE_2D, lod, (int)format, width, height, 0, (int)format, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, lod, (int)format, width, height, 0, (int)formatType, GL_UNSIGNED_BYTE, 0);
 	ApplyFiltering();
 }
 
@@ -163,6 +168,6 @@ void Texture2D::CreateTexture(const void* data)
 {
 	glGenTextures(1, &id);
 	Bind();
-	glTexImage2D(GL_TEXTURE_2D, lod, (int)format, width, height, 0, (int)format, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, lod, (int)format, width, height, 0, (int)formatType, GL_UNSIGNED_BYTE, data);
 	ApplyFiltering();
 }

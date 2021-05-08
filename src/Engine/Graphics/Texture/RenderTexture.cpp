@@ -16,7 +16,8 @@ RenderTexture::~RenderTexture()
 	if (generatedBuffers)
 	{
 		glDeleteFramebuffers(1, &id);
-		delete colourBuffer;
+		if (colourFormat != Format::None)
+			delete colourBuffer;
 		if (depthFormat != Format::None)
 			delete depthBuffer;
 	}
@@ -30,19 +31,24 @@ void RenderTexture::GenerateBuffers()
 	glGenFramebuffers(1, &id);
 	Bind();
 
-	// create colourBuffer and assign to framebuffer
-	colourBuffer = new Texture2D(colourFormat, Vector2i(width, height), 0);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colourBuffer->GetID(), 0);
+	if (colourFormat != Format::None)
+	{
+		// create colourBuffer and assign to framebuffer
+		colourBuffer = new Texture2D(colourFormat, Vector2i(width, height), 0);
+		colourBuffer->CreateTexture();
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colourBuffer->GetID(), 0);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	}
+	else
+		glDrawBuffer(GL_NONE);
 
 	if (depthFormat != Format::None)
 	{
 		// create depthBuffer amd assign to framebuffer
 		depthBuffer = new Texture2D(depthFormat, Vector2i(width, height), 0);
+		depthBuffer->CreateTexture();
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthBuffer->GetID(), 0);
 	}
-
-	GLenum buffers[] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, buffers);
 
 	generatedBuffers = true;
 	if (!TextureOK())

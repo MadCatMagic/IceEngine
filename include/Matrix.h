@@ -33,6 +33,10 @@ public:
 	static Matrix4x4 LookAt(const Vector3& pos, const Vector3& target, const Vector3& up);
 	static Matrix4x4 Rotation(const Vector3& euler);
 
+	static Matrix4x4 ProjectionMatrix(float fov, float zNear, float zFar, float widthHeightRatio);
+	static Matrix4x4 ViewMatrix(const Vector3& pos, const Vector3& dir, const Vector3& up);
+	static Matrix4x4 OrthoMatrix(float left, float right, float bottom, float top, float near, float far);
+
 	static Matrix4x4 zero;
 	static Matrix4x4 identity;
 

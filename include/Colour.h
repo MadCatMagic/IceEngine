@@ -4,6 +4,7 @@
 class Colour
 {
 public:
+	Colour();
 	Colour(int r, int g, int b);
 	Colour(int r, int g, int b, int a);
 	Colour(float r, float g, float b);
