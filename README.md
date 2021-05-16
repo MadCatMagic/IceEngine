@@ -6,6 +6,6 @@ At the moment it contains:
 * binds or classes for various openGL objects
 * basic 3D rendering support
 * basic UI system
-* support for 2D textures
+* support for 2D textures and cubemaps
 
 All of these features are subject to change whenever I get around to improving them

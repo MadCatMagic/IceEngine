@@ -109,6 +109,10 @@ int main(void)
     // light RenderTexture
     RenderTexture lightTexture = RenderTexture(SHADOWMAPSIZE, SHADOWMAPSIZE, Texture::Format::Depth16, Texture::Format::None);
     lightTexture.GenerateBuffers();
+    lightTexture.depthBuffer->wrapMode = Texture::WrapMode::Border;
+    lightTexture.depthBuffer->Bind();
+    lightTexture.depthBuffer->ApplyFiltering();
+    lightTexture.depthBuffer->SetBorderColour(Vector4::one);
 
     // texture stufffff
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
@@ -170,6 +174,8 @@ int main(void)
         mat.SetVector3("lightDir", -light->transform->Up());
         mat.SetVector3("viewPos", player.transform->GetPos());
 
+        mat.SetInt("usedLights", 1);
+
         Renderer::RenderToCamera(&cam);
 
         // renders the ui ontop
@@ -178,8 +184,11 @@ int main(void)
         Renderer::BindScreenBuffer();
         Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
+        // colour corrected for srgb
+        glEnable(GL_FRAMEBUFFER_SRGB);
         // should draw the texture onto the screen
         Renderer::Blit(renderTexture.colourBuffer->GetID(), 0, winSize);
+        glDisable(GL_FRAMEBUFFER_SRGB);
 
         Behaviour::UpdateBehaviours();
         
@@ -207,6 +216,7 @@ int main(void)
 
         playerCam.transform->SetLocalRot(Vector3((float)rotY, 0.0f, 0.0f));
         player.transform->Rotate(Vector3(0.0f, (float)-Input::diffX / 120.0f, 0.0f));
+        lightEntity.transform->SetPos(player.transform->GetPos());
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

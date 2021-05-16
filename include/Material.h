@@ -17,13 +17,21 @@ public:
 
 	void SetShader(Shader& shader);
 
+	void SetInt(const std::string& name, int i);
+	void SetIntArray(const std::string& name, const int* ints, unsigned int count);
+
 	void SetVector2(const std::string& name, const Vector2& vector);
 	void SetVector3(const std::string& name, const Vector3& vector);
 	void SetVector4(const std::string& name, const Vector4& vector);
+	void SetVector2Array(const std::string& name, const Vector2* vectors, unsigned int count);
+	void SetVector3Array(const std::string& name, const Vector3* vectors, unsigned int count);
+	void SetVector4Array(const std::string& name, const Vector4* vectors, unsigned int count);
 
-	void SetMatrix4x4(const std::string& name, const Matrix4x4 matrix);
+	void SetMatrix4x4(const std::string& name, const Matrix4x4& matrix);
+	void SetMatrix4x4Array(const std::string& name, const Matrix4x4* matrix, unsigned int count);
 
 	void SetTexture(const std::string& name, unsigned int texid);
+	void SetTextures(const std::string& name, const int* texids, unsigned int count);
 
 	Material& operator=(const Material& other);
 	Material& operator=(Material&& other) noexcept;

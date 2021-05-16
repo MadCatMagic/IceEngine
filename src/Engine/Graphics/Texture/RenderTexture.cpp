@@ -1,8 +1,8 @@
-#include "Texture.h"
+#include "Texture/RenderTexture.h"
 #include <iostream>
 
 RenderTexture::RenderTexture(int width, int height, Format depth, Format colour)
-	: Texture(2)
+	: Texture(Dimension::Two)
 {
 	this->id = -1;
 	this->width = width;

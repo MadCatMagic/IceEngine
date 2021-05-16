@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Engine\Graphics\Texture\Image.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Texture\ImageLoader.cpp" />
+    <ClCompile Include="src\Engine\Graphics\Texture\Cubemap.cpp" />
     <ClCompile Include="src\Engine\Graphics\Texture\Texture.cpp" />
     <ClCompile Include="src\Engine\Light.cpp" />
     <ClCompile Include="src\Engine\Graphics\Colour.cpp" />
@@ -61,6 +64,9 @@
     <ClCompile Include="src\Engine\UI\TextRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Texture\Image.h" />
+    <ClInclude Include="include\Texture\ImageLoader.h" />
+    <ClInclude Include="include\Texture\Cubemap.h" />
     <ClInclude Include="include\Colour.h" />
     <ClInclude Include="include\EntityInspector.h" />
     <ClInclude Include="include\Behaviour.h" />

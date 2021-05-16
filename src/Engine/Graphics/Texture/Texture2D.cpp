@@ -1,30 +1,25 @@
-#include "Texture.h"
-
-// open source image importing library
-#define STB_IMAGE_IMPLEMENTATION
-#pragma warning(push, 0)
-#include "stb_image.h"
-#pragma warning(pop)
+#include "Texture/Texture2D.h"
+#include "Texture/Image.h"
 
 // quite basic texture importing
 // might improve later on
 Texture2D::Texture2D(const std::string& filepath)
-	: Texture(2)
+	: Texture(Dimension::Two)
 {
 	id = -1;
-	int width, height, bytesPerPixel;
-	unsigned char* imageData = stbi_load(filepath.data(), &width, &height, &bytesPerPixel, 0);
-	this->width = width;
-	this->height = height;
-	this->format = bytesPerPixel == 3 ? Format::RGB : Format::RGBA;
+	Image image = Image(filepath);
+	unsigned char* imageData = image.LoadData();
+	this->width = image.GetWidth();
+	this->height = image.GetHeight();
+	this->format = image.GetBytesPerPixel() == 3 ? Format::RGB : Format::RGBA;
 	this->formatType = FormatType(format);
 	this->lod = 0;
 	CreateTexture(imageData);
-	stbi_image_free(imageData);
+	image.~Image();
 }
 
 Texture2D::Texture2D(Format format, const Vector2i& size, unsigned int lod)
-	: Texture(2)
+	: Texture(Dimension::Two)
 {
 	id = -1;
 	this->format = format;
@@ -35,7 +30,7 @@ Texture2D::Texture2D(Format format, const Vector2i& size, unsigned int lod)
 }
 
 Texture2D::Texture2D(Format format, const Vector2i& size, WrapMode wrapMode, unsigned int lod)
-	: Texture(2)
+	: Texture(Dimension::Two)
 {
 	id = -1;
 	this->format = format;
@@ -47,7 +42,7 @@ Texture2D::Texture2D(Format format, const Vector2i& size, WrapMode wrapMode, uns
 }
 
 Texture2D::Texture2D(Format format, const Vector2i& size, unsigned int lod, const void* data)
-	: Texture(2)
+	: Texture(Dimension::Two)
 {
 	id = -1;
 	this->format = format;
@@ -55,10 +50,11 @@ Texture2D::Texture2D(Format format, const Vector2i& size, unsigned int lod, cons
 	this->width = size.x;
 	this->height = size.y;
 	this->lod = lod;
+	CreateTexture(data);
 }
 
 Texture2D::Texture2D(Format format, const Vector2i& size, WrapMode wrapMode, unsigned int lod, const void* data)
-	: Texture(2)
+	: Texture(Dimension::Two)
 {
 	id = -1;
 	this->format = format;
@@ -67,10 +63,11 @@ Texture2D::Texture2D(Format format, const Vector2i& size, WrapMode wrapMode, uns
 	this->height = size.y;
 	this->lod = lod;
 	this->wrapMode = wrapMode;
+	CreateTexture(data);
 }
 
 Texture2D::Texture2D(const Texture2D& obj)
-	: Texture(2)
+	: Texture(Dimension::Two)
 {
 	this->id = obj.id;
 	this->format = obj.format;
@@ -82,7 +79,7 @@ Texture2D::Texture2D(const Texture2D& obj)
 }
 
 Texture2D::Texture2D(Texture2D&& obj) noexcept
-	: Texture(2)
+	: Texture(Dimension::Two)
 {
 	this->id = obj.id;
 	obj.id = -1;
@@ -142,8 +139,8 @@ void Texture2D::ApplyFiltering() const
 {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (int)wrapMode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (int)wrapMode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)sampling);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)sampling);
 }
 
 void Texture2D::Bind() const
@@ -154,6 +151,13 @@ void Texture2D::Bind() const
 void Texture2D::Unbind() const
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+// make sure texture is bound AND created
+void Texture2D::SetBorderColour(const Vector4& colour) const
+{
+	float borderColor[] = { colour.x, colour.y, colour.z, colour.w };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 }
 
 void Texture2D::CreateTexture()

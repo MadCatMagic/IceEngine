@@ -7,21 +7,30 @@
 layout(location = 0) in vec4 pos;
 layout(location = 1) in vec3 norm;
 
+#define lightNum 4
+
 out VS_OUT{
     vec3 position;
     vec3 normal;
-    vec4 positionLightSpace;
+    vec4 positionLightSpace[lightNum];
 } vs_out;
 
 uniform mat4 projectionMatrix;
 uniform mat4 modelMatrix;
-uniform mat4 lightSpaceMatrix;
+uniform mat4 lightSpaceMatrix[lightNum];
+
+uniform int usedLights;
 
 void main()
 {
     vs_out.position = vec3(modelMatrix * pos);
     vs_out.normal = transpose(inverse(mat3(modelMatrix))) * norm;
-    vs_out.positionLightSpace = lightSpaceMatrix * vec4(vs_out.position, 1.0);
+    for (int i = 0; i < lightNum; i++)
+    {
+        if (i == usedLights)
+            break;
+        vs_out.positionLightSpace[i] = lightSpaceMatrix[i] * vec4(vs_out.position, 1.0);
+    }
     gl_Position = projectionMatrix * vec4(vs_out.position, 1.0);
 }
 
@@ -30,16 +39,20 @@ void main()
 
 layout(location = 0) out vec4 colour;
 
+#define lightNum 4
+
 in VS_OUT{
     vec3 position;
     vec3 normal;
-    vec4 positionLightSpace;
+    vec4 positionLightSpace[lightNum];
 } fs_in;
 
-uniform sampler2D shadowMap;
+uniform sampler2D shadowMap[lightNum];
 
-uniform vec3 lightDir;
+uniform vec3 lightDir[lightNum];
 uniform vec3 viewPos;
+
+uniform int usedLights;
 
 vec2 poissonDisk[16] = vec2[](
     vec2(-0.94201624, -0.39906216),
@@ -58,30 +71,26 @@ vec2 poissonDisk[16] = vec2[](
     vec2(-0.81409955, 0.91437590),
     vec2(0.19984126, 0.78641367),
     vec2(0.14383161, -0.14100790)
-    );
+);
 
-// Returns a random number based on a vec3 and an int.
-float random(vec3 seed, int i) {
-    vec4 seed4 = vec4(seed, i);
-    float dot_product = dot(seed4, vec4(12.9898, 78.233, 45.164, 94.673));
-    return fract(sin(dot_product) * 43758.5453);
-}
-
-float ShadowCalculation(vec4 fragPosLightSpace)
+float ShadowCalculation(vec4 fragPosLightSpace, uint index)
 {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
     // check whether current frag pos is in shadow
-    float bias = max(0.002 * (1.0 - dot(fs_in.normal, lightDir)), 0.0005);
+    float bias = max(0.002 * (1.0 - dot(fs_in.normal, lightDir[index])), 0.0005);
     float shadow = 0;
 
     for (int i = 0; i < 16; i++) {
-        float val = texture(shadowMap, projCoords.xy + poissonDisk[i] / 4000.0).r;
+        float val = texture(shadowMap[index], projCoords.xy + poissonDisk[i] / 4000.0).r;
         if (val < projCoords.z - bias) {
             shadow += 0.05;
         }
     }
+
+    if (projCoords.z > 1.0)
+        shadow = 0.0;
 
     return shadow;
 }
@@ -93,14 +102,21 @@ void main()
     vec3 lightColor = vec3(1.0);
 
     // ambient
-    vec3 ambient = 0.1 * color;
-    // diffuse
-    float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = diff * lightColor;
+    vec3 ambient = 0.06 * color;
+    vec3 lighting = ambient;
+    for (int i = 0; i < lightNum; i++)
+    {
+        if (i == usedLights)
+            break;
 
-    // calculate shadow
-    float shadow = ShadowCalculation(fs_in.positionLightSpace);
-    vec3 lighting = (ambient + (1.0 - shadow) * diffuse) * color;
+        // diffuse
+        float diff = max(dot(lightDir[i], normal), 0.0);
+        vec3 diffuse = diff * lightColor;
 
-    colour = vec4(lighting, 1.0);
+        // calculate shadow
+        float shadow = ShadowCalculation(fs_in.positionLightSpace[i], i);
+        lighting += ((1.0 - shadow) * diffuse) * color;
+    }
+
+    colour = vec4(lighting / usedLights, 1.0);
 }

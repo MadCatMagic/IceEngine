@@ -19,6 +19,7 @@ public:
 	void ApplyFiltering() const override;
 	void Bind() const override;
 	void Unbind() const override;
+	void SetBorderColour(const Vector4& colour) const override;
 
 	void CreateTexture();
 	void CreateTexture(const void* data);

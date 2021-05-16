@@ -167,6 +167,7 @@ namespace Renderer
         lightMat = new Material(*lightShader);
     }
 
+    // renders the scene to renderbuffer using the light shader
     void RenderLight(Light* light)
     {
         std::vector<MeshFilter*>* filters = MeshFilter::GetMeshFilters();
