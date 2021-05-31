@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Material.h"
+#include "Engine/Mesh/Material.h"
 
 Material::Material() { }
 
@@ -50,6 +50,18 @@ void Material::SetIntArray(const std::string& name, const int* ints, unsigned in
 	glUniform1iv(location, count, ints);
 }
 
+void Material::SetFloat(const std::string& name, float f)
+{
+	int location = GetUniformLocation(name);
+	glUniform1f(location, f);
+}
+
+void Material::SetFloatArray(const std::string& name, const float* floats, unsigned int count)
+{
+	int location = GetUniformLocation(name);
+	glUniform1fv(location, count, floats);
+}
+
 void Material::SetVector2(const std::string& name, const Vector2& vector)
 {
 	int location = GetUniformLocation(name);
@@ -71,11 +83,11 @@ void Material::SetVector4(const std::string& name, const Vector4& vector)
 void Material::SetVector2Array(const std::string& name, const Vector2* vectors, unsigned int count)
 {
 	int location = GetUniformLocation(name);
-	std::vector<float> floats = std::vector<float>();
+	std::vector<float> floats = std::vector<float>(count * 2);
 	for (unsigned int i = 0; i < count; i++)
 	{
-		floats.push_back(vectors[i].x);
-		floats.push_back(vectors[i].y);
+		floats[i * 2 + 0] = vectors[i].x;
+		floats[i * 2 + 1] = vectors[i].y;
 	}
 	glUniform2fv(location, count, floats.data());
 }
@@ -83,12 +95,12 @@ void Material::SetVector2Array(const std::string& name, const Vector2* vectors, 
 void Material::SetVector3Array(const std::string& name, const Vector3* vectors, unsigned int count)
 {
 	int location = GetUniformLocation(name);
-	std::vector<float> floats = std::vector<float>();
+	std::vector<float> floats = std::vector<float>(count * 3);
 	for (unsigned int i = 0; i < count; i++)
 	{
-		floats.push_back(vectors[i].x);
-		floats.push_back(vectors[i].y);
-		floats.push_back(vectors[i].z);
+		floats[i * 3 + 0] = vectors[i].x;
+		floats[i * 3 + 1] = vectors[i].y;
+		floats[i * 3 + 2] = vectors[i].z;
 	}
 	glUniform3fv(location, count, floats.data());
 }
@@ -96,13 +108,13 @@ void Material::SetVector3Array(const std::string& name, const Vector3* vectors, 
 void Material::SetVector4Array(const std::string& name, const Vector4* vectors, unsigned int count)
 {
 	int location = GetUniformLocation(name);
-	std::vector<float> floats = std::vector<float>();
+	std::vector<float> floats = std::vector<float>(count * 4);
 	for (unsigned int i = 0; i < count; i++)
 	{
-		floats.push_back(vectors[i].x);
-		floats.push_back(vectors[i].y);
-		floats.push_back(vectors[i].z);
-		floats.push_back(vectors[i].w);
+		floats[i * 4 + 0] = vectors[i].x;
+		floats[i * 4 + 1] = vectors[i].y;
+		floats[i * 4 + 2] = vectors[i].z;
+		floats[i * 4 + 3] = vectors[i].w;
 	}
 	glUniform4fv(location, count, floats.data());
 }
@@ -116,11 +128,14 @@ void Material::SetMatrix4x4(const std::string& name, const Matrix4x4& matrix)
 void Material::SetMatrix4x4Array(const std::string& name, const Matrix4x4* matrix, unsigned int count)
 {
 	int location = GetUniformLocation(name);
-	std::vector<float> floats = std::vector<float>();
+	std::vector<float> floats = std::vector<float>(count * 16);
+	
 	// assign function takes range such as array and adds to vector
 	for (unsigned int i = 0; i < count; i++)
-		floats.assign(matrix[i].m, matrix[i].m + 16);
-	glUniformMatrix4fv(location, 1, true, floats.data());
+		for (unsigned int j = 0; j < 16; j++)
+			floats[i * 16 + j] = matrix[i].m[j];
+	
+	glUniformMatrix4fv(location, count, true, floats.data());
 }
 
 void Material::SetTexture(const std::string& name, unsigned int texid)

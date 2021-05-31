@@ -1,5 +1,4 @@
-#include "UI/Button.h"
-#include <iostream>
+#include "Engine/UI/Button.h"
 
 namespace UI
 {
@@ -34,7 +33,7 @@ namespace UI
 
 	void Button::Draw()
 	{
-		spriteRenderer->Draw(position, Vector2(pixelPosition.x / pixelsPerUnit.x, pixelPosition.y / pixelsPerUnit.y));
+		spriteRenderer->Draw(position, Vector2(size.x / pixelsPerUnit.x, size.y / pixelsPerUnit.y));
 	}
 
 	void Button::OnTransform() { }

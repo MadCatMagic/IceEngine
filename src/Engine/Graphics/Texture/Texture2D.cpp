@@ -1,5 +1,5 @@
-#include "Texture/Texture2D.h"
-#include "Texture/Image.h"
+#include "Engine/Texture/Texture2D.h"
+#include "Engine/Texture/Image.h"
 
 // quite basic texture importing
 // might improve later on

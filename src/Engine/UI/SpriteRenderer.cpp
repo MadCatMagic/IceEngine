@@ -1,4 +1,4 @@
-#include "UI/SpriteRenderer.h"
+#include "Engine/UI/SpriteRenderer.h"
 
 namespace UI
 {
@@ -27,12 +27,12 @@ namespace UI
         // quad vertex buffero
         float spriteQuad[30] {
         //  pos.x           pos.y           pos.z uv.u  uv.v
-            pos.x,          pos.y,          0.0f, 1.0f, 0.0f,
-            pos.x + size.x, pos.y,          0.0f, 0.0f, 0.0f,
-            pos.x,          pos.y + size.y, 0.0f, 1.0f, 1.0f,
-            pos.x,          pos.y + size.y, 0.0f, 1.0f, 1.0f,
-            pos.x + size.x, pos.y,          0.0f, 0.0f, 0.0f,
-            pos.x + size.x, pos.y + size.y, 0.0f, 0.0f, 1.0f
+            pos.x,          pos.y,          0.0f, 0.0f, 1.0f,
+            pos.x + size.x, pos.y,          0.0f, 1.0f, 1.0f,
+            pos.x,          pos.y + size.y, 0.0f, 0.0f, 0.0f,
+            pos.x,          pos.y + size.y, 0.0f, 0.0f, 0.0f,
+            pos.x + size.x, pos.y,          0.0f, 1.0f, 1.0f,
+            pos.x + size.x, pos.y + size.y, 0.0f, 1.0f, 0.0f
         };
 
         spriteVB->ModifyData(spriteQuad, sizeof(float) * 30, 0);

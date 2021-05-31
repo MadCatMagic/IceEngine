@@ -1,4 +1,4 @@
-#include "Colour.h"
+#include "Engine/Colour.h"
 #include <stdexcept>
 
 Colour::Colour()
@@ -46,14 +46,81 @@ Colour::Colour(const std::string& hexColour8)
 	}
 }
 
-Colour Colour::black =   Colour(0.0f, 0.0f, 0.0f, 1.0f);
-Colour Colour::blue =    Colour(0.0f, 0.0f, 1.0f, 1.0f);
-Colour Colour::clear =   Colour(0.0f, 0.0f, 0.0f, 0.0f);
-Colour Colour::cyan =    Colour(0.0f, 1.0f, 1.0f, 1.0f);
-Colour Colour::gray =    Colour(0.5f, 0.5f, 0.5f, 1.0f);
-Colour Colour::green =   Colour(0.0f, 1.0f, 0.0f, 1.0f);
-Colour Colour::grey =    Colour(0.5f, 0.5f, 0.5f, 1.0f);
+Colour Colour::operator+(const Colour& obj) const
+{
+	return Colour(r + obj.r, g + obj.g, b + obj.b, a);
+}
+
+Colour Colour::operator-(const Colour& obj) const
+{
+	return Colour(r - obj.r, g - obj.g, b - obj.b, a);
+}
+
+Colour Colour::operator*(float obj) const
+{
+	return Colour(r * obj, g * obj, b * obj, a);
+}
+
+Colour Colour::operator/(float obj) const
+{
+	return Colour(r / obj, g / obj, b / obj, a);
+}
+
+Colour& Colour::operator+=(const Colour& obj)
+{
+	r += obj.r;
+	g += obj.g;
+	b += obj.b;
+	return *this;
+}
+
+Colour& Colour::operator-=(const Colour& obj)
+{
+	r -= obj.r;
+	g -= obj.g;
+	b -= obj.b;
+	return *this;
+}
+
+Colour& Colour::operator*=(float obj)
+{
+	r *= obj;
+	g *= obj;
+	b *= obj;
+	return *this;
+}
+
+Colour& Colour::operator/=(float obj)
+{
+	r /= obj;
+	g /= obj;
+	b /= obj;
+	return *this;
+}
+
+bool Colour::operator==(const Colour& obj) const
+{
+	return r == obj.r && g == obj.g && b == obj.b && a == obj.a;
+}
+
+bool Colour::operator!=(const Colour& a) const
+{
+	return !(*this == a);
+}
+
+std::string Colour::ToString() const
+{
+	return std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", " + std::to_string(a);
+}
+
+Colour Colour::black = Colour(0.0f, 0.0f, 0.0f, 1.0f);
+Colour Colour::blue = Colour(0.0f, 0.0f, 1.0f, 1.0f);
+Colour Colour::clear = Colour(0.0f, 0.0f, 0.0f, 0.0f);
+Colour Colour::cyan = Colour(0.0f, 1.0f, 1.0f, 1.0f);
+Colour Colour::gray = Colour(0.5f, 0.5f, 0.5f, 1.0f);
+Colour Colour::green = Colour(0.0f, 1.0f, 0.0f, 1.0f);
+Colour Colour::grey = Colour(0.5f, 0.5f, 0.5f, 1.0f);
 Colour Colour::magenta = Colour(1.0f, 0.0f, 1.0f, 1.0f);
-Colour Colour::red =     Colour(1.0f, 0.0f, 0.0f, 1.0f);
-Colour Colour::white =   Colour(1.0f, 1.0f, 1.0f, 1.0f);
-Colour Colour::yellow =  Colour(1.0f, 0.92f, 0.016f, 1.0f);
+Colour Colour::red = Colour(1.0f, 0.0f, 0.0f, 1.0f);
+Colour Colour::white = Colour(1.0f, 1.0f, 1.0f, 1.0f);
+Colour Colour::yellow = Colour(1.0f, 0.92f, 0.016f, 1.0f);

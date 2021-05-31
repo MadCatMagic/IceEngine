@@ -1,6 +1,6 @@
 #include <iostream>
-#include "Texture\Cubemap.h"
-#include "Texture\Image.h"
+#include "Engine/Texture\Cubemap.h"
+#include "Engine/Texture\Image.h"
 
 Cubemap::Cubemap(const std::string filepaths[6])
     : Texture(Dimension::Cubemap)

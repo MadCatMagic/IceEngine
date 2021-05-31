@@ -1,10 +1,11 @@
-#include "Camera.h"
+#include "Engine/Camera.h"
+
 #include <cmath>
 #include <iostream>
 
 Camera::Camera() { }
 
-Camera::Camera(float zNear, float zFar, float fov, float widthHeightRatio)
+void Camera::SetParams(float zNear, float zFar, float fov, float widthHeightRatio)
 {
 	this->zNear = zNear;
 	this->zFar = zFar;

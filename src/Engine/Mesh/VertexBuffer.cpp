@@ -1,5 +1,5 @@
-#include "VertexBuffer.h"
-#include "Renderer.h"
+#include "Engine/Mesh/VertexBuffer.h"
+#include "Engine/Renderer.h"
 
 VertexBuffer::VertexBuffer()
 {

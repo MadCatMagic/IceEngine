@@ -1,14 +1,8 @@
-#include "UI.h"
+#include "Engine/UI.h"
 #include <iostream>
 
 namespace UI
 {
-    namespace
-    {
-        static bool textureSetup = false;
-        static RenderTexture* renderTexture;
-        static Texture2D* renderedTexture;
-    }
     Vector2 pixelsPerUnit = Vector2::one;
     Vector2i winSize = Vector2i::zero;
 

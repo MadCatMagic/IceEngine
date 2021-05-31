@@ -1,6 +1,5 @@
 #include "EntityInspector.h"
 #include <iostream>
-#include "..\include\EntityInspector.h"
 
 EntityInspector::EntityInspector() { }
 

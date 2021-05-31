@@ -1,4 +1,4 @@
-#zwrite off
+#zwrite on
 #cull off
 #blend on
 #blendsrc SrcAlpha
@@ -18,11 +18,13 @@ void main() {
 #version 330 core
 
 in vec2 UV;
-out vec4 color;
+out vec4 colour;
+out float gl_FragDepth;
 
-uniform sampler2D renderedTexture;
+uniform sampler2D blitTexture;
+uniform sampler2D depthTexture;
 
 void main() {
-	vec4 tex = texture(renderedTexture, UV);
-	color = tex;
+	colour = texture(blitTexture, UV);
+	gl_FragDepth = texture(depthTexture, UV).r;
 }

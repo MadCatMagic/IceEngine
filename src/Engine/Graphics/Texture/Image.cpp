@@ -1,5 +1,5 @@
-#include "Texture/Image.h"
-#include "Texture/ImageLoader.h"
+#include "Engine/Texture/Image.h"
+#include "Engine/Texture/ImageLoader.h"
 #include <iostream>
 
 Image::Image(const std::string& filepath)

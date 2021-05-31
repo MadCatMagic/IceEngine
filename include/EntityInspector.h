@@ -1,6 +1,6 @@
 #pragma once
-#include "Entity.h"
-#include "UI.h"
+#include "Engine/Entity.h"
+#include "Engine/UI.h"
 
 class EntityInspector : public Behaviour
 {
@@ -19,7 +19,7 @@ private:
 	int offset{ 0 };
 
 	// Inherited via Behaviour
-	virtual void Start() override;
-	virtual void Update() override;
+	void Start();
+	void Update();
 };
 

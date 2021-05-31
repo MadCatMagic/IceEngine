@@ -1,4 +1,4 @@
-#include "UI/TextRenderer.h"
+#include "Engine/UI/TextRenderer.h"
 
 #include <iostream>
 
@@ -70,7 +70,6 @@ namespace UI
                 0, 
                 face->glyph->bitmap.buffer
             );
-            texture->CreateTexture();
 
             // now store character for later use
             Character character = {

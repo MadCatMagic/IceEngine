@@ -1,5 +1,5 @@
-#include "IndexBuffer.h"
-#include "Renderer.h"
+#include "Engine/Mesh/IndexBuffer.h"
+#include "Engine/Renderer.h"
 
 IndexBuffer::IndexBuffer()
 {

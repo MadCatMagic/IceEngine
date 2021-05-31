@@ -27,9 +27,6 @@
     <ClCompile Include="src\Engine\Graphics\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Maths\FMaths.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Engine\Maths\Matrix4x4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -114,9 +111,6 @@
     <ClCompile Include="src\EntityInspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\UI\UIArray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Engine\Graphics\Colour.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -132,9 +126,6 @@
     <ClCompile Include="src\Engine\Graphics\Texture\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine\Utilities\Utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Engine\Graphics\Texture\Cubemap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -144,69 +135,21 @@
     <ClCompile Include="src\Engine\Graphics\Texture\Image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\Graphics\PostProcessEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TemporalReprojection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\UI\UIPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\IndexBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Vector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\VertexBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\VertexArray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Matrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Quaternion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\FMaths.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Behaviour.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\PlayerController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\UI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\MeshFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dependancies\include\stb_image.h">
@@ -215,55 +158,121 @@
     <ClInclude Include="include\EntityInspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Colour.h">
+    <ClInclude Include="include\TemporalReprojection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\Sprite.h">
+    <ClInclude Include="include\Engine\Texture\Cubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\SpriteRenderer.h">
+    <ClInclude Include="include\Engine\Texture\Image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\TextRenderer.h">
+    <ClInclude Include="include\Engine\Texture\ImageLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\UICore.h">
+    <ClInclude Include="include\Engine\Texture\RenderTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\Element.h">
+    <ClInclude Include="include\Engine\Texture\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\Text.h">
+    <ClInclude Include="include\Engine\Texture\Texture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\Button.h">
+    <ClInclude Include="include\Engine\UI\Button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\UI\Array.h">
+    <ClInclude Include="include\Engine\UI\Element.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Texture\Texture.h">
+    <ClInclude Include="include\Engine\UI\Panel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Texture\Texture2D.h">
+    <ClInclude Include="include\Engine\UI\Sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Texture\RenderTexture.h">
+    <ClInclude Include="include\Engine\UI\SpriteRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Light.h">
+    <ClInclude Include="include\Engine\UI\Text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Utils.h">
+    <ClInclude Include="include\Engine\UI\TextRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Texture\Cubemap.h">
+    <ClInclude Include="include\Engine\UI\UICore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Texture\ImageLoader.h">
+    <ClInclude Include="include\Engine\Behaviour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Texture\Image.h">
+    <ClInclude Include="include\Engine\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Colour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Mesh\IndexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Mesh\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Mesh\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Mesh\MeshFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Mesh\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Mesh\VertexArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Mesh\VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\PostProcessEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Quaternion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\UI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -272,7 +281,8 @@
     <None Include="res\shaders\Sprite.shader" />
     <None Include="res\shaders\Text.shader" />
     <None Include="res\shaders\Light.shader" />
-    <None Include="res\shaders\Basic.shader" />
+    <None Include="res\shaders\LitNormals.shader" />
+    <None Include="res\shaders\TemporalReprojection.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\sprites\pleasedonotthecat.png">

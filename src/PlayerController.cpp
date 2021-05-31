@@ -1,5 +1,5 @@
 #include "PlayerController.h"
-#include "Input.h"
+#include "Engine/Input.h"
 #include <iostream>
 
 void PlayerController::Update()
@@ -21,10 +21,4 @@ void PlayerController::Update()
         transform->Move(-right * speed);
     else if (Input::aState == 1 || Input::aState == 2)
         transform->Move(right * speed);
-}
-
-void PlayerController::SetCam(Camera* camera)
-{
-	cam = camera;
-    cam->transform = this->transform->child;
 }

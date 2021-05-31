@@ -1,4 +1,6 @@
-#include "Light.h"
+#include "Engine/Light.h"
+#include "Engine/Renderer.h"
+#include "Engine/Camera.h"
 
 Light::Light()
 {
@@ -9,13 +11,50 @@ Light::~Light()
 {
 	std::vector<Light*>::iterator index = std::find(lights.begin(), lights.end(), this);
 	lights.erase(index);
+
+	DeleteTexture();
 }
 
 Matrix4x4 Light::GetMatrix()
 {
-	Matrix4x4 ortho = Matrix4x4::OrthoMatrix(-10.0f, 10.0f, -10.0f, 10.0f, 10.0f, -10.0f);
-	Matrix4x4 view = Matrix4x4::ViewMatrix(transform->GetPos(), -transform->Up(), Vector3(0.0f, 1.0f, 0.0f));
-	return ortho * view;
+	// sun matrices have an orthographic matrix and face down
+	if (type == Type::Sun)
+		return 
+			Matrix4x4::OrthoMatrix(-10.0f, 10.0f, -10.0f, 10.0f, 20.0f, -20.0f) * 
+			Matrix4x4::ViewMatrix(Renderer::GetMainCamera()->transform->GetPos(), -transform->Up(), Vector3(0.0f, 1.0f, 0.0f));
+
+	// spot matrices use a projection matrix and face forward
+	else if (type == Type::Spot)
+		return 
+			Matrix4x4::ProjectionMatrix(DegreesToRadii(90), 0.1f, 50.0f, 1.0f) *
+			Matrix4x4::ViewMatrix(transform->GetPos(), -transform->Forward(), Vector3(0.0f, 1.0f, 0.0f));
+
+	return Matrix4x4::identity;
+}
+
+void Light::GenerateTexture()
+{
+	texture = new RenderTexture(SHADOWMAP_SIZE, SHADOWMAP_SIZE, Texture::Format::Depth16, Texture::Format::None);
+	texture->GenerateBuffers();
+	texture->depthBuffer->wrapMode = Texture::WrapMode::Border;
+	if (type == Type::Sun)
+		texture->depthBuffer->SetBorderColour(Vector4::one);
+	else
+		texture->depthBuffer->SetBorderColour(Vector4::zero);
+	texture->depthBuffer->Bind();
+	texture->depthBuffer->ApplyFiltering();
+}
+
+void Light::DeleteTexture()
+{
+	// delete texture
+	if (texture)
+		delete(texture);
+	texture = nullptr;
+}
+
+void Light::Update()
+{
 }
 
 std::vector<Light*> Light::lights = std::vector<Light*>();

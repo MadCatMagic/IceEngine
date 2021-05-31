@@ -1,4 +1,4 @@
-#include "Texture/RenderTexture.h"
+#include "Engine/Texture/RenderTexture.h"
 #include <iostream>
 
 RenderTexture::RenderTexture(int width, int height, Format depth, Format colour)
@@ -9,6 +9,51 @@ RenderTexture::RenderTexture(int width, int height, Format depth, Format colour)
 	this->height = height;
 	this->depthFormat = depth;
 	this->colourFormat = colour;
+}
+
+RenderTexture::RenderTexture(const RenderTexture& obj)
+	: Texture(Dimension::Two)
+{
+	this->id = obj.id;
+	this->format = obj.format;
+	this->formatType = obj.formatType;
+	this->wrapMode = obj.wrapMode;
+	this->width = obj.width;
+	this->height = obj.height;
+	this->lod = obj.lod;
+
+	this->colourBuffer = obj.colourBuffer;
+	this->depthBuffer = obj.depthBuffer;
+	this->colourFormat = obj.colourFormat;
+	this->depthFormat = obj.depthFormat;
+}
+
+RenderTexture::RenderTexture(RenderTexture&& obj) noexcept
+	: Texture(Dimension::Two)
+{
+	this->id = obj.id;
+	obj.id = -1;
+	this->format = obj.format;
+	obj.format = Format::RGB;
+	this->formatType = obj.formatType;
+	obj.formatType = Format::RGB;
+	this->wrapMode = obj.wrapMode;
+	obj.wrapMode = WrapMode::Repeat;
+	this->width = obj.width;
+	obj.width = 0;
+	this->height = obj.height;
+	obj.height = 0;
+	this->lod = obj.lod;
+	obj.lod = 0;
+
+	this->colourBuffer = obj.colourBuffer;
+	obj.colourBuffer = nullptr;
+	this->depthBuffer = obj.depthBuffer;
+	obj.depthBuffer = nullptr;
+	this->colourFormat = obj.colourFormat;
+	obj.colourFormat = Format::None;
+	this->depthFormat = obj.depthFormat;
+	obj.depthFormat = Format::None;
 }
 
 RenderTexture::~RenderTexture()
@@ -63,6 +108,51 @@ bool RenderTexture::TextureOK() const
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		return false;
 	return true;
+}
+
+RenderTexture& RenderTexture::operator=(const RenderTexture& obj)
+{
+	this->id = obj.id;
+	this->format = obj.format;
+	this->formatType = obj.formatType;
+	this->wrapMode = obj.wrapMode;
+	this->width = obj.width;
+	this->height = obj.height;
+	this->lod = obj.lod;
+
+	this->colourBuffer = obj.colourBuffer;
+	this->depthBuffer = obj.depthBuffer;
+	this->colourFormat = obj.colourFormat;
+	this->depthFormat = obj.depthFormat;
+	return *this;
+}
+
+RenderTexture& RenderTexture::operator=(RenderTexture&& obj) noexcept
+{
+	this->id = obj.id;
+	obj.id = -1;
+	this->format = obj.format;
+	obj.format = Format::RGB;
+	this->formatType = obj.formatType;
+	obj.formatType = Format::RGB;
+	this->wrapMode = obj.wrapMode;
+	obj.wrapMode = WrapMode::Repeat;
+	this->width = obj.width;
+	obj.width = 0;
+	this->height = obj.height;
+	obj.height = 0;
+	this->lod = obj.lod;
+	obj.lod = 0;
+
+	this->colourBuffer = obj.colourBuffer;
+	obj.colourBuffer = nullptr;
+	this->depthBuffer = obj.depthBuffer;
+	obj.depthBuffer = nullptr;
+	this->colourFormat = obj.colourFormat;
+	obj.colourFormat = Format::None;
+	this->depthFormat = obj.depthFormat;
+	obj.depthFormat = Format::None;
+	return *this;
 }
 
 void RenderTexture::Bind() const

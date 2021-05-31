@@ -1,5 +1,6 @@
-#include "Behaviour.h"
-#include "Entity.h"
+#include "Engine/Behaviour.h"
+#include "Engine/Entity.h"
+#include "Engine/Camera.h"
 
 Behaviour::Behaviour()
 {
@@ -40,6 +41,12 @@ Behaviour& Behaviour::operator=(Behaviour&& other) noexcept
 	this->transform = other.transform;
 	other.transform = nullptr;
 	return *this;
+}
+
+void Behaviour::AwakeBehaviours()
+{
+	for (Behaviour* obj : behaviourList)
+		obj->Awake();
 }
 
 void Behaviour::StartBehaviours()

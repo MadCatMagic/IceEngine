@@ -5,62 +5,62 @@
 
 #include <GL/glew.h>
 
-#include "Shader.h"
+#include "Engine/Mesh/Shader.h"
 
 struct ShaderProgramSource
 {
     std::string vertexSource;
     std::string fragmentSource;
-    bool zwrite;
-    bool cull;
-    bool blend;
+
     Shader::BlendType srcblendtype{ Shader::BlendType::SrcAlpha };
     Shader::BlendType destblendtype{ Shader::BlendType::OneMinusSrcAlpha };
 
-    bool autoSetProjMatrix;
+    std::unordered_map<Shader::Param, bool> params;
 };
 
-Shader::Shader() { }
+Shader::Shader() { InitializeParameters(); }
 
 Shader::Shader(const std::string& filepath)
 {
     ShaderProgramSource src = ParseShader(filepath);
     id = CreateShader(src.vertexSource, src.fragmentSource);
-    zwriteon = src.zwrite;
-    cullon = src.cull;
-    blendon = src.blend;
+
+    InitializeParameters();
+    for (auto& pair : src.params)
+        parameters[pair.first] = pair.second;
+    
     srcblend = src.srcblendtype;
     destblend = src.destblendtype;
-    autoSetProjMatrix = src.autoSetProjMatrix;
 }
 
 Shader::Shader(const Shader& obj)
 {
     this->id = obj.id;
-    this->zwriteon = obj.zwriteon;
-    this->cullon = obj.cullon;
-    this->blendon = obj.blendon;
+
+    InitializeParameters();
+    for (auto& pair : obj.parameters)
+        parameters[pair.first] = pair.second;
+
     this->srcblend = obj.srcblend;
     this->destblend = obj.destblend;
-    this->autoSetProjMatrix = obj.autoSetProjMatrix;
 }
 
 Shader::Shader(Shader&& obj) noexcept
 {
     this->id = obj.id;
     obj.id = -1;
-    this->zwriteon = obj.zwriteon;
-    obj.zwriteon = true;
-    this->cullon = obj.cullon;
-    obj.cullon = true;
-    this->blendon = obj.blendon;
-    obj.blendon = false;
+
+    InitializeParameters();
+    for (auto& pair : obj.parameters)
+    {
+        parameters[pair.first] = pair.second;
+        obj.parameters[pair.first] = false;
+    }
+
     this->srcblend = obj.srcblend;
     obj.srcblend = BlendType::SrcAlpha;
     this->destblend = obj.destblend;
     obj.destblend = BlendType::OneMinusSrcAlpha;
-    this->autoSetProjMatrix = obj.autoSetProjMatrix;
-    obj.autoSetProjMatrix = false;
 }
 
 Shader::~Shader()
@@ -78,12 +78,13 @@ void Shader::SetPath(const std::string& filepath)
 Shader& Shader::operator=(const Shader& other)
 {
     this->id = other.id;
-    this->zwriteon = other.zwriteon;
-    this->cullon = other.cullon;
-    this->blendon = other.blendon;
+    
+    InitializeParameters();
+    for (auto& pair : other.parameters)
+        parameters[pair.first] = pair.second;
+
     this->srcblend = other.srcblend;
     this->destblend = other.destblend;
-    this->autoSetProjMatrix = other.autoSetProjMatrix;
     return *this;
 }
 
@@ -91,35 +92,35 @@ Shader& Shader::operator=(Shader&& other) noexcept
 {
     this->id = other.id;
     other.id = -1;
-    this->zwriteon = other.zwriteon;
-    other.zwriteon = true;
-    this->cullon = other.cullon;
-    other.cullon = true;
-    this->blendon = other.blendon;
-    other.blendon = false;
+    
+    InitializeParameters();
+    for (auto& pair : other.parameters)
+    {
+        parameters[pair.first] = pair.second;
+        other.parameters[pair.first] = false;
+    }
+
     this->srcblend = other.srcblend;
     other.srcblend = BlendType::SrcAlpha;
     this->destblend = other.destblend;
     other.destblend = BlendType::OneMinusSrcAlpha;
-    this->autoSetProjMatrix = other.autoSetProjMatrix;
-    other.autoSetProjMatrix = false;
     return *this;
 }
 
 void Shader::Bind() const
 {
     // zwrite
-    if (zwriteon)
+    if (parameters.find(Param::ZWrite)->second)
         glEnable(GL_DEPTH_TEST);
     else
         glDisable(GL_DEPTH_TEST);
     // cull
-    if (cullon)
+    if (parameters.find(Param::Cull)->second)
         glEnable(GL_CULL_FACE);
     else
         glDisable(GL_CULL_FACE);
     // blending
-    if (blendon)
+    if (parameters.find(Param::Blend)->second)
         glEnable(GL_BLEND);
     else
         glDisable(GL_BLEND);
@@ -130,6 +131,15 @@ void Shader::Bind() const
 void Shader::Unbind() const
 {
     glUseProgram(0);
+}
+
+void Shader::InitializeParameters()
+{
+    parameters[Param::Blend] = false;
+    parameters[Param::Cull] = false;
+    parameters[Param::SetProjMatrix] = false;
+    parameters[Param::ZWrite] = false;
+    parameters[Param::LightingInfo] = false;
 }
 
 /*
@@ -143,7 +153,8 @@ shader #subscripts:
 #blenddest [blendtype]; - must use semicolon to remove ambiguity
 blendtype - Zero, One, SrcColour, SrcAlpha, OneMinusSrcAlpha, ConstantColour, ConstantAlpha
 
-#setProjectionMatrix [off/on] - sets the mat4x4 uniform "projectionMatrix" automatically
+#setProjectionMatrix [off/on] - sets the mat4x4 uniforms "projectionMatrix" and "modelMatrix" automatically
+#lightingInformation [off/on] - sets lots of lighting uniforms
 */
 
 ShaderProgramSource Shader::ParseShader(const std::string& filepath)
@@ -157,13 +168,15 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
     std::string line;
     std::stringstream ss[2];
 
-    bool zwrite = true;
-    bool cull = true;
-    bool blend = false;
+    std::unordered_map<Param, bool> params;
+    params[Param::Blend] = false;
+    params[Param::Cull] = false;
+    params[Param::SetProjMatrix] = false;
+    params[Param::ZWrite] = false;
+    params[Param::LightingInfo] = false;
+    
     BlendType srcblend = BlendType::SrcAlpha;
     BlendType destblend = BlendType::OneMinusSrcAlpha;
-
-    bool setProjectionMatrix = false;
 
     ShaderType type = ShaderType::NONE;
     while (getline(stream, line))
@@ -201,13 +214,13 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
 
         // zwrite on
         else if (line.find("#zwrite ") != std::string::npos)
-            zwrite = option;
+            params[Param::ZWrite] = option;
         // cull on
         else if (line.find("#cull ") != std::string::npos)
-            cull = option;
+            params[Param::Cull] = option;
         // blending
         else if (line.find("#blend ") != std::string::npos)
-            blend = option;
+            params[Param::Blend] = option;
         else if (line.find("#blendsrc ") != std::string::npos)
             srcblend = blendType;
         else if (line.find("#blenddest ") != std::string::npos)
@@ -215,7 +228,11 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
 
         // automatically set projection matrix
         else if (line.find("#setProjectionMatrix ") != std::string::npos)
-            setProjectionMatrix = option;
+            params[Param::SetProjMatrix] = option;
+
+        // adds lots of lighting information
+        else if (line.find("#lightingInformation ") != std::string::npos)
+            params[Param::LightingInfo] = option;
 
         else if (type != ShaderType::NONE)
         {
@@ -223,7 +240,7 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
         }
     }
 
-    return { ss[0].str(), ss[1].str(), zwrite, cull, blend, srcblend, destblend, setProjectionMatrix };
+    return { ss[0].str(), ss[1].str(), srcblend, destblend, params };
 }
 
 unsigned int Shader::CompileShader(const std::string& source, unsigned int type)

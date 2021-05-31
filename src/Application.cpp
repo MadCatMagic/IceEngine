@@ -3,25 +3,24 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Renderer.h"
-#include "Time.h"
-#include "UI.h"
+#include "Engine/Core.h"
 
-#include "Quaternion.h"
-#include "Input.h"
+#include "Engine/Renderer.h"
+#include "Engine/Time.h"
+#include "Engine/UI.h"
 
-#include "Mesh.h"
-#include "MeshFilter.h"
-#include "FMaths.h"
+#include "Engine/Quaternion.h"
+#include "Engine/Input.h"
 
-#include "Camera.h"
-#include "Entity.h"
+#include "Engine/Mesh.h"
+
+#include "Engine/Camera.h"
+#include "Engine/Entity.h"
 #include "PlayerController.h"
 #include "EntityInspector.h"
 
-#include "Light.h"
-
-#define SHADOWMAPSIZE 4096
+#include "Engine/Light.h"
+#include "TemporalReprojection.h"
 
 int main(void)
 {
@@ -51,7 +50,7 @@ int main(void)
         std::cout << "GLEW ERROR" << std::endl;
     }
 
-    Renderer::Init(true);
+    Renderer::Init(true, window);
     Input::EnableInput(window);
     UI::Initialize(winSize);
     
@@ -65,20 +64,27 @@ int main(void)
     ei->SelectEntity(&playerCam);
 
     const float PI = 3.14159265359f;
-	Camera cam = Camera(0.1f, 50.0f, 120.0f * (PI / 180.0f), (float)winSize.x / (float)winSize.y);
-    pc->SetCam(&cam);
-    pc->transform->Move(Vector3(0.0f, 2.0f));
+	Camera* cam = playerCam.AddBehaviour<Camera>();
+    //TemporalReprojection* tr = playerCam.AddBehaviour<TemporalReprojection>();
+    cam->SetParams(0.1f, 50.0f, 120.0f * (PI / 180.0f), (float)winSize.x / (float)winSize.y);
+    pc->transform->Move(Vector3(0.0f, 0.0f));
+    Renderer::SetMainCamera(cam);
 
     // button testing
-    //UI::Sprite buttonSprite = UI::Sprite("res/sprites/pleasedonotthecat.png");
-    //buttonSprite.LoadTexture();
-    //UI::Button button = UI::Button(Vector2i(100, 100), Vector2i(-200, -200), &buttonSprite);
+    UI::Sprite panelSprite = UI::Sprite("res/sprites/pleasedonotthecat.png");
+    panelSprite.LoadTexture();
+    UI::Panel panel = UI::Panel(Vector2i(100, 100), Vector2i(-200, -200), &panelSprite);
 
-	Shader shader = Shader("res/shaders/Basic.shader");
+	Shader shader = Shader("res/shaders/LitNormals.shader");
     Material mat = Material(shader);
 	Mesh mesh = Mesh("res/models/monke.obj");
     Mesh axis = Mesh("res/models/Axis.obj");
-    Mesh sceneMesh = Mesh("res/models/scene2.obj");
+    Mesh sceneMesh = Mesh("res/models/scene2t.obj");
+
+    // texturing
+    Texture2D panelDiffuse = Texture2D("res/textures/PanelDiffuse.png");
+    Texture2D panelSpecular = Texture2D("res/textures/PanelSpecular.bmp");
+    Texture2D panelNormal = Texture2D("res/textures/PanelNormal.bmp");
 
     /* MESH CREATION */
     // mesh filter brings it all together
@@ -105,19 +111,31 @@ int main(void)
     Entity lightEntity = Entity();
     lightEntity.transform->Rotate(Vector3(DegreesToRadii(30.0f), 0.0f, DegreesToRadii(-20.0f)));
     Light* light = lightEntity.AddBehaviour<Light>();
+    light->colour = Colour(0.85f, 0.7f, 0.65f) * 0.6f;
+    light->GenerateTexture();
 
-    // light RenderTexture
-    RenderTexture lightTexture = RenderTexture(SHADOWMAPSIZE, SHADOWMAPSIZE, Texture::Format::Depth16, Texture::Format::None);
-    lightTexture.GenerateBuffers();
-    lightTexture.depthBuffer->wrapMode = Texture::WrapMode::Border;
-    lightTexture.depthBuffer->Bind();
-    lightTexture.depthBuffer->ApplyFiltering();
-    lightTexture.depthBuffer->SetBorderColour(Vector4::one);
+    // second light for spot testing
+    Entity lightEntity2 = Entity();
+    lightEntity2.transform->Rotate(Vector3(DegreesToRadii(20.0f), DegreesToRadii(-50.0f), 0.0f));
+    lightEntity2.transform->Move(Vector3(1.5f, 1.5f, 4.0f));
+    Light* light2 = lightEntity2.AddBehaviour<Light>();
+    light2->type = Light::Type::Spot;
+    light2->colour = Colour::yellow;
+    light2->strength = 2.0f;
+    light2->GenerateTexture();
 
     // texture stufffff
-    // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+    // camera rendertexture
+    RenderTexture camTexture = RenderTexture(winSize.x, winSize.y, Texture::Format::Depth, Texture::Format::RGB);
+    camTexture.GenerateBuffers();
+
+    // secondary texture for post processing
+    // must change this
     RenderTexture renderTexture = RenderTexture(winSize.x, winSize.y, Texture::Format::Depth, Texture::Format::RGB);
     renderTexture.GenerateBuffers();
+    
+    // assign camera target
+    cam->target = &camTexture;
 
     float r = 0.0f;
     float increment = 0.05f;
@@ -132,6 +150,7 @@ int main(void)
     float rotY = 0.0f;
     float rotX = 0.0f; // just used for logging
     
+    Behaviour::AwakeBehaviours();
     Behaviour::StartBehaviours();
 
     const float halfPI = 1.5705f;
@@ -152,31 +171,24 @@ int main(void)
         Time::SetUDT(currentFrameTime - frameTime);
         frameTime = currentFrameTime;
 
-        // Render to lights
-        lightTexture.Bind();
-        Renderer::Viewport(Vector2i(SHADOWMAPSIZE, SHADOWMAPSIZE));
-        Renderer::ClearScreen(GL_DEPTH_BUFFER_BIT);
+        // drawing stuff
+        mat.Bind();
+        Texture::BindTextureUnit(0);
+        panelDiffuse.Bind();
+        mat.SetTexture("textureDiffuse", 0);
+        Texture::BindTextureUnit(1);
+        panelSpecular.Bind();
+        mat.SetTexture("textureSpecular", 1);
+        Texture::BindTextureUnit(2);
+        panelNormal.Bind();
+        mat.SetTexture("textureNormal", 2);
 
-        Renderer::RenderLight(light);
-
-        // Render to renderTexture
-        // rendertexture should be containing the drawn texture in renderTexture.colourBuffer
+        // clear renderTexture
         renderTexture.Bind();
-        Renderer::Viewport(winSize);
         Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // drawing stuff
-        lightTexture.depthBuffer->Bind();
-        mat.Bind();
-        mat.SetMatrix4x4("lightSpaceMatrix", light->GetMatrix());
-        mat.SetTexture("shadowMap", 0);
-
-        mat.SetVector3("lightDir", -light->transform->Up());
-        mat.SetVector3("viewPos", player.transform->GetPos());
-
-        mat.SetInt("usedLights", 1);
-
-        Renderer::RenderToCamera(&cam);
+        Renderer::RenderToCamera(cam);
+        Renderer::PostProcess(cam, renderTexture);
 
         // renders the ui ontop
         UI::RenderUI(&renderTexture);
@@ -187,8 +199,10 @@ int main(void)
         // colour corrected for srgb
         glEnable(GL_FRAMEBUFFER_SRGB);
         // should draw the texture onto the screen
-        Renderer::Blit(renderTexture.colourBuffer->GetID(), 0, winSize);
+        Renderer::BlitToScreen(renderTexture, winSize);
         glDisable(GL_FRAMEBUFFER_SRGB);
+
+        //Renderer::Blit(light2->GetTexture()->depthBuffer->GetID(), 0, winSize);
 
         Behaviour::UpdateBehaviours();
         
@@ -211,12 +225,11 @@ int main(void)
         // rotation magic ???
         //rotX -= diffX / 120.0f;
         rotY -= Input::diffY / 120.0f;
-        rotY = FMaths::Clamp(rotY, -halfPI, halfPI);
+        rotY = Clamp(rotY, -halfPI, halfPI);
         rotX -= Input::diffX / 120.0f;
 
         playerCam.transform->SetLocalRot(Vector3((float)rotY, 0.0f, 0.0f));
         player.transform->Rotate(Vector3(0.0f, (float)-Input::diffX / 120.0f, 0.0f));
-        lightEntity.transform->SetPos(player.transform->GetPos());
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
