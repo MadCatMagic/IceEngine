@@ -1,24 +1,8 @@
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #include "Engine/Mesh.h"
-#include "Engine/Core.h"
-
-struct VertexData {
-	Vector3 pos;
-	Vector3 normal;
-	Vector2 texture;
-	Vector3 tangent;
-
-	bool operator==(const VertexData& v2)
-	{
-		return
-			pos == v2.pos &&
-			normal == v2.normal &&
-			texture == v2.texture &&
-			tangent == v2.tangent;
-	}
-};
 
 Mesh::Mesh(VertexBuffer& vb, IndexBuffer& ib)
 	: vertexBuffer(vb), indexBuffer(ib)
@@ -83,8 +67,23 @@ void Mesh::SetIndexBuffer(const unsigned int* data, unsigned int count)
 
 void Mesh::SetMeshFromFile(const std::string& filepath)
 {
-	MeshData data = ReadMeshFile(filepath);
-	ConstructBuffersFromMeshData(data);
+	std::vector<std::string> split;
+	StrSplit(filepath, ".", split);
+	if (split.back() == "obj") 
+	{
+		MeshData data = ReadMeshFileOBJ(filepath);
+		ConstructBuffersFromMeshData(data);
+		// testing .icem
+		// always generates file
+		ustring charData = CompileICEMFile(data);
+		WriteICEMFile(charData, filepath + ".icem");
+	}
+	else if (split.back() == "icem")
+	{
+		MeshData data = ReadMeshFileICEM(filepath);
+		ConstructBuffersFromMeshData(data);
+	}
+
 	StandardVertexArray();
 }
 
@@ -123,7 +122,7 @@ Vector3 Mesh::Tangent(const Vector3& pos1, const Vector3& pos2, const Vector3& p
 	);
 }
 
-MeshData Mesh::ReadMeshFile(const std::string& filepath)
+MeshData Mesh::ReadMeshFileOBJ(const std::string& filepath)
 {
 	std::ifstream stream(filepath);
 	std::string line;
@@ -181,7 +180,6 @@ MeshData Mesh::ReadMeshFile(const std::string& filepath)
 					mf.v[i] = stoul(vdata[0]);
 					mf.vt[i] = stoul(vdata[1]);
 					mf.vn[i] = stoul(vdata[2]);
-					//mf.n = normals[stoul(vdata[2])];
 				}
 				faces.push_back(mf);
 			}
@@ -197,10 +195,8 @@ MeshData Mesh::ConsolidateVertexData(
 	const std::vector <Vector2>& texUVs,
 	MeshFace* faces, unsigned int faceCount)
 {
-	static std::vector <VertexData> vertexData;
-	static std::vector <unsigned int> faceData;
-	vertexData.clear();
-	faceData.clear();
+	std::vector <VertexData> vertexData;
+	std::vector <unsigned int> faceData;
 
 	// loop through each face
 	for (unsigned int i = 0; i < faceCount; i++)
@@ -210,7 +206,7 @@ MeshData Mesh::ConsolidateVertexData(
 		{
 			VertexData cvd = VertexData();
 			cvd.pos = vertices[faces[i].v[j] - 1];
-			cvd.normal = TriangleNormal(vertices[faces[i].v[0] - 1], vertices[faces[i].v[1] - 1], vertices[faces[i].v[2] - 1]);
+			cvd.normal = -normals[faces[i].vn[j] - 1];//TriangleNormal(vertices[faces[i].v[0] - 1], vertices[faces[i].v[1] - 1], vertices[faces[i].v[2] - 1]);
 			cvd.texture = texUVs[faces[i].vt[j] - 1];
 			cvd.tangent = Tangent(
 				vertices[faces[i].v[0] - 1], vertices[faces[i].v[1] - 1], vertices[faces[i].v[2] - 1],
@@ -231,36 +227,38 @@ MeshData Mesh::ConsolidateVertexData(
 			}
 		}
 	}
-	MeshData md = MeshData();
-	md.vertices = vertexData.data();
-	md.vertexCount = vertexData.size();
-	md.indices = faceData.data();
-	md.indiceCount = faceData.size();
-	return md;
+
+	// evil data hack to convert to heap allocated data
+	VertexData* vertexPointer = new VertexData[vertexData.size()]();
+	memcpy((void*)vertexPointer, (void*)vertexData.data(), vertexData.size() * VERTEXDATA_SIZE * 4);
+	unsigned int* indexPointer = new unsigned int[faceData.size()];
+	memcpy((void*)indexPointer, (void*)faceData.data(), faceData.size() * 4);
+
+	return { vertexPointer, vertexData.size(), indexPointer, faceData.size(), true };
 }
 
 void Mesh::ConstructBuffersFromMeshData(const MeshData& meshData)
 {
-	std::vector<float> vBuffer = std::vector<float>(meshData.vertexCount * 11);
+	std::vector<float> vBuffer = std::vector<float>(meshData.vertexCount * VERTEXDATA_SIZE);
 	for (unsigned int i = 0; i < meshData.vertexCount; i++)
 	{
 		// position : 0
-		vBuffer[i * 11 + 0] = meshData.vertices[i].pos.x;
-		vBuffer[i * 11 + 1] = meshData.vertices[i].pos.y;
-		vBuffer[i * 11 + 2] = meshData.vertices[i].pos.z;
+		vBuffer[i * VERTEXDATA_SIZE + 0] = meshData.vertices[i].pos.x;
+		vBuffer[i * VERTEXDATA_SIZE + 1] = meshData.vertices[i].pos.y;
+		vBuffer[i * VERTEXDATA_SIZE + 2] = meshData.vertices[i].pos.z;
 		// normal : 1
-		vBuffer[i * 11 + 3] = meshData.vertices[i].normal.x;
-		vBuffer[i * 11 + 4] = meshData.vertices[i].normal.y;
-		vBuffer[i * 11 + 5] = meshData.vertices[i].normal.z;
+		vBuffer[i * VERTEXDATA_SIZE + 3] = meshData.vertices[i].normal.x;
+		vBuffer[i * VERTEXDATA_SIZE + 4] = meshData.vertices[i].normal.y;
+		vBuffer[i * VERTEXDATA_SIZE + 5] = meshData.vertices[i].normal.z;
 		// texCoord : 2
-		vBuffer[i * 11 + 6] = meshData.vertices[i].texture.x;
-		vBuffer[i * 11 + 7] = meshData.vertices[i].texture.y;
+		vBuffer[i * VERTEXDATA_SIZE + 6] = meshData.vertices[i].texture.x;
+		vBuffer[i * VERTEXDATA_SIZE + 7] = meshData.vertices[i].texture.y;
 		// tangent : 3
-		vBuffer[i * 11 + 8] = meshData.vertices[i].tangent.x;
-		vBuffer[i * 11 + 9] = meshData.vertices[i].tangent.y;
-		vBuffer[i * 11 + 10] = meshData.vertices[i].tangent.z;
+		vBuffer[i * VERTEXDATA_SIZE + 8] = meshData.vertices[i].tangent.x;
+		vBuffer[i * VERTEXDATA_SIZE + 9] = meshData.vertices[i].tangent.y;
+		vBuffer[i * VERTEXDATA_SIZE + 10] = meshData.vertices[i].tangent.z;
 	}
-
+	
 	md = MeshData(meshData);
 	vertexBuffer = VertexBuffer(&vBuffer[0], vBuffer.size() * sizeof(float));
 	indexBuffer = IndexBuffer(md.indices, md.indiceCount);
@@ -273,4 +271,181 @@ void Mesh::StandardVertexArray()
 	AddVertexAttribute(2); // texCoord
 	AddVertexAttribute(3); // tangent
 	SetVertexStructure();
+}
+
+MeshData Mesh::ReadMeshFileICEM(const std::string& filepath)
+{
+	std::ifstream readStream = std::ifstream(filepath, std::ios::in | std::ios::binary);
+	
+	// read and convert the vertexCount and vertexData from the first 8 bytes in the file
+	// gets reused so only 4 bytes
+	unsigned char* byteBuffer = new unsigned char[4];
+
+	// vertex count
+	readStream.read((char*)byteBuffer, 4);
+	unsigned int vertexCount = ustringTob4<unsigned int>(ustring(byteBuffer, 4));
+
+	// indice count
+	readStream.read((char*)byteBuffer, 4);
+	unsigned int indexCount = ustringTob4<unsigned int>(ustring(byteBuffer, 4));
+
+	// destroy unused byteBuffer now
+	delete[] byteBuffer;
+
+	// read vertexData
+	unsigned char* vertexData = new unsigned char[vertexCount * 4 * VERTEXDATA_SIZE];
+	// 4 bytes per value and VERTEXDATA_SIZE values per vertex
+	// read takes an input of (long long) and visual studio complains if its not explicitly cast to
+	readStream.read((char*)vertexData, (long long)vertexCount * 4 * VERTEXDATA_SIZE);
+
+	// get that vertexData back
+	std::vector<VertexData> vertexArray(vertexCount);
+	for (unsigned int i = 0; i < vertexCount; i++) 
+	{
+		VertexData vertex = VertexData();
+		// loop through and retrieve each value
+		for (int j = 0; j < VERTEXDATA_SIZE; j++)
+		{
+			// put 4 bytes into ustring
+			ustring str = ustring(&vertexData[(i * VERTEXDATA_SIZE + j) * 4], 4);
+			// convert to value
+			float val = ustringTob4<float>(str);
+			// assign to meshdata
+			vertex.DirectIndex(j) = val;
+		}
+		vertexArray[i] = vertex;
+	}
+	// horrible memory hack to heap allocated object
+	VertexData* vertexPointer = new VertexData[vertexCount]();
+	memcpy((void*)vertexPointer, (void*)vertexArray.data(), vertexCount * VERTEXDATA_SIZE * 4);
+
+	// read indexData
+	unsigned char* indexData = new unsigned char[indexCount * 4];
+	// 4 bytes per value
+	// read takes an input of (long long) and visual studio complains if its not explicitly cast to
+	readStream.read((char*)indexData, (long long)indexCount * 4);
+
+	// get that indexData back
+	std::vector<unsigned int> indexArray(indexCount);
+	for (unsigned int i = 0; i < indexCount; i++)
+	{
+		// put 4 bytes into ustring
+		ustring str = ustring(&indexData[i * 4], 4);
+		// convert to value
+		unsigned int val = ustringTob4<unsigned int>(str);
+		// assign to meshdata
+		indexArray[i] = val;
+	}
+	// horrible memory hack to heap allocated object
+	unsigned int* indexPointer = new unsigned int[indexCount];
+	memcpy((void*)indexPointer, (void*)indexArray.data(), indexCount * 4);
+	
+	readStream.close();
+	return { vertexPointer, vertexCount, indexPointer, indexCount, true };
+}
+
+/* Format
+vertexCount
+indiceCount
+vertices
+indices
+*/
+
+ustring Mesh::CompileICEMFile(const MeshData& meshData)
+{
+	ustring returnStr;
+
+	// vertexCount
+	returnStr += b4Toustring<unsigned int>(meshData.vertexCount);
+	// indexCount
+	returnStr += b4Toustring<unsigned int>(meshData.indiceCount);
+
+	// loop through each vertex
+	for (unsigned int i = 0; i < meshData.vertexCount; i++)
+	{
+		// loop through every value in the vertex
+		for (int j = 0; j < VERTEXDATA_SIZE; j++)
+		{
+			float val = meshData.vertices[i].DirectIndex(j);
+			returnStr += b4Toustring<float>(val);
+		}
+	}
+
+	// loop through each index
+	for (unsigned int i = 0; i < meshData.indiceCount; i++)
+	{
+		unsigned int val = meshData.indices[i];
+		returnStr += b4Toustring<unsigned int>(val);
+	}
+
+	return returnStr;
+}
+
+void Mesh::WriteICEMFile(const ustring& data, const std::string& filepath)
+{
+	std::ofstream writeStream = std::ofstream(filepath, std::ios::out | std::ios::trunc | std::ios::binary);
+	writeStream.write((char*)data.data(), data.size());
+	writeStream.close();
+}
+
+MeshData::MeshData() { }
+
+MeshData::MeshData(VertexData* vertices, unsigned int vertexCount, unsigned int* indices, unsigned int indiceCount, bool heapAllocated)
+	: vertices(vertices), vertexCount(vertexCount), indices(indices), indiceCount(indiceCount), heapAllocated(heapAllocated)
+{ }
+
+MeshData::MeshData(const MeshData& obj)
+{
+	this->vertices = obj.vertices;
+	this->vertexCount = obj.vertexCount;
+	this->indices = obj.indices;
+	this->indiceCount = obj.indiceCount;
+	this->heapAllocated = obj.heapAllocated;
+}
+
+MeshData::MeshData(MeshData&& obj) noexcept
+{
+	this->vertices = obj.vertices;
+	obj.vertices = nullptr;
+	this->vertexCount = obj.vertexCount;
+	obj.vertexCount = 0;
+	this->indices = obj.indices;
+	obj.indices = nullptr;
+	this->indiceCount = obj.indiceCount;
+	obj.indiceCount = 0;
+	this->heapAllocated = obj.heapAllocated;
+	obj.heapAllocated = false;
+}
+
+MeshData::~MeshData()
+{
+	if (heapAllocated) {
+		delete[] vertices;
+		delete[] indices;
+	}
+}
+
+MeshData& MeshData::operator=(const MeshData& obj)
+{
+	this->vertices = obj.vertices;
+	this->vertexCount = obj.vertexCount;
+	this->indices = obj.indices;
+	this->indiceCount = obj.indiceCount;
+	this->heapAllocated = obj.heapAllocated;
+	return *this;
+}
+
+MeshData& MeshData::operator=(MeshData&& obj) noexcept
+{
+	this->vertices = obj.vertices;
+	obj.vertices = nullptr;
+	this->vertexCount = obj.vertexCount;
+	obj.vertexCount = 0;
+	this->indices = obj.indices;
+	obj.indices = nullptr;
+	this->indiceCount = obj.indiceCount;
+	obj.indiceCount = 0;
+	this->heapAllocated = obj.heapAllocated;
+	obj.heapAllocated = false;
+	return *this;
 }

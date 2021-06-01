@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Core.h"
+
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "IndexBuffer.h"
@@ -10,26 +12,90 @@
 // full mesh
 // contains render function
 
-struct VertexData;
+#define VERTEXDATA_SIZE 11
+struct VertexData {
+	Vector3 pos;
+	Vector3 normal;
+	Vector2 texture;
+	Vector3 tangent;
+
+	inline VertexData() {}
+	inline ~VertexData() {}
+
+	// inefficient
+	// want to find better way of doing this
+	inline float& DirectIndex(int i)
+	{
+		switch (i) {
+		case 0:
+			return pos.x;
+		case 1:
+			return pos.y;
+		case 2:
+			return pos.z;
+		case 3:
+			return normal.x;
+		case 4:
+			return normal.y;
+		case 5:
+			return normal.z;
+		case 6:
+			return texture.x;
+		case 7:
+			return texture.y;
+		case 8:
+			return tangent.x;
+		case 9:
+			return tangent.y;
+		case 10:
+			return tangent.z;
+		}
+		return pos.x;
+	}
+
+	inline bool operator==(const VertexData& v2)
+	{
+		return
+			pos == v2.pos &&
+			normal == v2.normal &&
+			texture == v2.texture &&
+			tangent == v2.tangent;
+	}
+};
 
 struct MeshData {
-	VertexData* vertices;
-	unsigned int vertexCount;
-	unsigned int* indices;
-	unsigned int indiceCount;
+	VertexData* vertices{ nullptr };
+	unsigned int vertexCount{ };
+	unsigned int* indices{ nullptr };
+	unsigned int indiceCount{ };
+
+	bool heapAllocated{ false };
+
+	MeshData();
+	MeshData(VertexData* vertices, unsigned int vertexCount, unsigned int* indices, unsigned int indiceCount, bool heapAllocated);
+	MeshData(const MeshData& obj);
+	MeshData(MeshData&& obj) noexcept;
+	~MeshData();
+
+	MeshData& operator=(const MeshData& obj);
+	MeshData& operator=(MeshData&& obj) noexcept;
 };
 
 struct MeshFace {
 	unsigned int v[3];
 	unsigned int vt[3];
 	unsigned int vn[3];
-	//Vector3 n;
 };
 
+// can load from file formats .obj and .icem
+// .icem is fastest and has no required processing for running
+// .icem is a cache object so would have to be regenerated after any changes aswell
 class Mesh
 {
 public:
+
 	Mesh(VertexBuffer& vb, IndexBuffer& ib);
+	// load mesh from Format file
 	Mesh(const std::string& filepath);
 	~Mesh();
 
@@ -63,7 +129,12 @@ private:
 
 	MeshData md{};
 	std::vector <float> vvb;
-	MeshData ReadMeshFile(const std::string& filepath);
+
+	// -- mesh loading pipeline --
+	// reads meshdata from .obj file
+	MeshData ReadMeshFileOBJ(const std::string& filepath);
+
+	// generates cleaner meshdata
 	MeshData ConsolidateVertexData(
 		const std::vector <Vector3>& vertices, 
 		const std::vector <Vector3>& normals, 
@@ -71,7 +142,21 @@ private:
 		MeshFace* faces, 
 		unsigned int faceCount
 	);
+
+	// takes meshdata and constructs buffers from it
 	void ConstructBuffersFromMeshData(const MeshData& meshData);
+
+	// position, normal, uv, tangent
 	void StandardVertexArray();
+
+	// -- custom .icem pipeline --
+
+	// reads mesh from icem file
+	// no need for ConsolidateVertexData() so is much faster
+	MeshData ReadMeshFileICEM(const std::string& filepath);
+
+	// compiles 
+	ustring CompileICEMFile(const MeshData& meshData);
+	void WriteICEMFile(const ustring& data, const std::string& filepath);
 };
 

@@ -39,7 +39,7 @@ int main(void)
         glfwTerminate();
         return -1;
     }
-
+    
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
@@ -49,15 +49,15 @@ int main(void)
     {
         std::cout << "GLEW ERROR" << std::endl;
     }
-
+    
     Renderer::Init(true, window);
     Input::EnableInput(window);
     UI::Initialize(winSize);
-    
+
     // entity testing
     Entity player = Entity();
     Entity playerCam = Entity();
-
+    
     player.transform->AssignChild(playerCam.transform);
     PlayerController* pc = player.AddBehaviour<PlayerController>();
     EntityInspector* ei = player.AddBehaviour<EntityInspector>();
@@ -74,12 +74,12 @@ int main(void)
     UI::Sprite panelSprite = UI::Sprite("res/sprites/pleasedonotthecat.png");
     panelSprite.LoadTexture();
     UI::Panel panel = UI::Panel(Vector2i(100, 100), Vector2i(-200, -200), &panelSprite);
-
+    
 	Shader shader = Shader("res/shaders/LitNormals.shader");
     Material mat = Material(shader);
-	Mesh mesh = Mesh("res/models/monke.obj");
-    Mesh axis = Mesh("res/models/Axis.obj");
-    Mesh sceneMesh = Mesh("res/models/scene2t.obj");
+	Mesh mesh = Mesh("res/models/monke.obj.icem");
+    Mesh axis = Mesh("res/models/Axis.obj.icem");
+    Mesh sceneMesh = Mesh("res/models/scene2t.obj.icem");
 
     // texturing
     Texture2D panelDiffuse = Texture2D("res/textures/PanelDiffuse.png");
