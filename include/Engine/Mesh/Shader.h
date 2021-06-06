@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include "GL/glew.h"
 
 struct ShaderProgramSource;
 // self contained shader class
@@ -32,6 +33,9 @@ public:
 
     void Bind() const;
     void Unbind() const;
+
+    // lets you draw as a wireframe
+    static void ToggleWireframe(bool on);
 
     // uses weird m.find(p)->second to remain const
     inline bool GetParam(Param param) const { return parameters.find(param)->second; }

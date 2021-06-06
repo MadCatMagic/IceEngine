@@ -67,7 +67,6 @@ int main(void)
 	Camera* cam = playerCam.AddBehaviour<Camera>();
     //TemporalReprojection* tr = playerCam.AddBehaviour<TemporalReprojection>();
     cam->SetParams(0.1f, 50.0f, 120.0f * (PI / 180.0f), (float)winSize.x / (float)winSize.y);
-    pc->transform->Move(Vector3(0.0f, 0.0f));
     Renderer::SetMainCamera(cam);
 
     // button testing
@@ -189,6 +188,7 @@ int main(void)
 
         Renderer::RenderToCamera(cam);
         Renderer::PostProcess(cam, renderTexture);
+        Renderer::RenderGizmos(cam);
 
         // renders the ui ontop
         UI::RenderUI(&renderTexture);

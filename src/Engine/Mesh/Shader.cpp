@@ -133,6 +133,14 @@ void Shader::Unbind() const
     glUseProgram(0);
 }
 
+void Shader::ToggleWireframe(bool on)
+{
+    if (on)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
 void Shader::InitializeParameters()
 {
     parameters[Param::Blend] = false;

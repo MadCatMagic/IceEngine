@@ -67,4 +67,10 @@ void Behaviour::ReleaseBehaviours()
 		delete behaviour;
 }
 
+void Behaviour::DrawGizmosFromBehaviours()
+{
+	for (Behaviour* obj : behaviourList)
+		obj->OnDrawGizmos();
+}
+
 std::vector<Behaviour*> Behaviour::behaviourList = std::vector<Behaviour*>();

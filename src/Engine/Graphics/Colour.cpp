@@ -108,6 +108,16 @@ bool Colour::operator!=(const Colour& a) const
 	return !(*this == a);
 }
 
+Vector3 Colour::ToVector3() const
+{
+	return Vector3(r, g, b);
+}
+
+Vector4 Colour::ToVector4() const
+{
+	return Vector4(r, g, b, a);
+}
+
 std::string Colour::ToString() const
 {
 	return std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", " + std::to_string(a);

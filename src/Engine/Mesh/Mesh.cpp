@@ -101,6 +101,26 @@ void Mesh::Unbind() const
 	vertexArray.Unbind();
 }
 
+MeshData Mesh::GetMeshDataFromFile(const std::string& filepath)
+{
+	std::vector<std::string> split;
+	StrSplit(filepath, ".", split);
+	MeshData data = MeshData();
+	if (split.back() == "obj")
+	{
+		data = ReadMeshFileOBJ(filepath);
+		// testing .icem
+		// always generates file
+		ustring charData = CompileICEMFile(data);
+		WriteICEMFile(charData, filepath + ".icem");
+	}
+	else if (split.back() == "icem")
+	{
+		data = ReadMeshFileICEM(filepath);
+	}
+	return data;
+}
+
 Vector3 Mesh::TriangleNormal(const Vector3& v0, const Vector3& v1, const Vector3& v2)
 {
 	return Vector3::Normalize(Vector3::Cross(v1 - v0, v2 - v0));

@@ -30,7 +30,11 @@ Transform::Transform(const Vector3& position, const Quaternion& rotation, const 
     GlobalFromLocalTransform();
 }
 
-Transform::~Transform() { this->parent->child = nullptr; this->child->parent = nullptr; }
+Transform::~Transform() 
+{ 
+    if (this->parent != nullptr) this->parent->child = nullptr; 
+    if (this->child != nullptr) this->child->parent = nullptr; 
+}
 
 Vector3 Transform::Forward() const
 {

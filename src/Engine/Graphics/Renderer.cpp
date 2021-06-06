@@ -8,6 +8,7 @@
 #include "Engine/PostProcessEffect.h"
 
 #include "Engine/Entity.h"
+#include "Engine/Gizmos.h"
 
 namespace Renderer
 {
@@ -90,6 +91,8 @@ namespace Renderer
             DebugEnable();
         SetupLightMat();
         BlitSetup();
+
+        Gizmos::SetupGizmos();
     }
 
     void ClearScreen(GLbitfield mask)
@@ -310,7 +313,13 @@ namespace Renderer
         if (p != nullptr)
             p->OnPostProcess(cam->target, &dest);
         else
-            Blit(*cam->target, dest, false);
+            Blit(*cam->target, dest, true);
+    }
+
+    void RenderGizmos(Camera* cam)
+    {
+        Gizmos::SetTargetCamera(cam);
+        Behaviour::DrawGizmosFromBehaviours();
     }
 
     static Shader* lightShader;
@@ -350,5 +359,7 @@ namespace Renderer
 
         delete lightShader;
         delete lightMat;
+
+        Gizmos::Release();
     }
 }

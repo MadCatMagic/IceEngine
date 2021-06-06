@@ -24,6 +24,9 @@ public:
 	void Unbind() const;
 
 	inline unsigned int GetID() const { return id; }
+
+	static unsigned int currentlyBound;
+
 private:
 	unsigned int id = -1;
 	bool constructed{};

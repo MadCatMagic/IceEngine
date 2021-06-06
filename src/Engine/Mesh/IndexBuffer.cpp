@@ -56,10 +56,14 @@ IndexBuffer& IndexBuffer::operator=(IndexBuffer&& other) noexcept
 
 void IndexBuffer::Bind() const
 {
+	currentlyBound = id;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 }
 
 void IndexBuffer::Unbind() const
 {
+	currentlyBound = 0;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+
+unsigned int IndexBuffer::currentlyBound = 0;

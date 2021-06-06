@@ -1,6 +1,7 @@
 #include "Engine/Light.h"
 #include "Engine/Renderer.h"
 #include "Engine/Camera.h"
+#include "Engine/Gizmos.h"
 
 Light::Light()
 {
@@ -53,8 +54,23 @@ void Light::DeleteTexture()
 	texture = nullptr;
 }
 
+Vector3 Light::GetLightDir() const
+{
+	return type == Type::Sun ? -transform->Up() : transform->Forward();
+}
+
 void Light::Update()
 {
+}
+
+void Light::OnDrawGizmos()
+{
+	if (type != Type::Sun)
+	{
+		Gizmos::SetColour(colour);
+		Gizmos::DrawSphere(transform->GetPos(), 0.2f);
+		//Gizmos::DrawLine(transform->GetPos(), transform->GetPos() + GetLightDir());
+	}
 }
 
 std::vector<Light*> Light::lights = std::vector<Light*>();

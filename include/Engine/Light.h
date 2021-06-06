@@ -26,11 +26,14 @@ public:
 	void GenerateTexture();
 	void DeleteTexture();
 
+	Vector3 GetLightDir() const;
+
 	inline RenderTexture* GetTexture() const { return texture; }
 	static inline std::vector<Light*>* GetLights() { return &lights; }
 
 private:
 	void Update();
+	void OnDrawGizmos();
 
 	RenderTexture* texture{ nullptr };
 

@@ -19,5 +19,7 @@ public:
 	void Unbind() const;
 
 	inline unsigned int GetCount() const { return count; }
+
+	static unsigned int currentlyBound;
 };
 

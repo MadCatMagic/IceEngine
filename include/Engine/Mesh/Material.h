@@ -17,6 +17,8 @@ public:
 
 	void SetShader(Shader& shader);
 
+	void SetBool(const std::string& name, bool b);
+	void SetBoolArray(const std::string& name, const bool* bools, unsigned int count);
 	void SetInt(const std::string& name, int i);
 	void SetIntArray(const std::string& name, const int* ints, unsigned int count);
 	void SetFloat(const std::string& name, float f);

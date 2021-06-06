@@ -25,6 +25,8 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
+	static unsigned int currentlyBound;
+
 private:
 	unsigned int id;
 };

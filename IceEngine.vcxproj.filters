@@ -147,6 +147,12 @@
     <ClCompile Include="src\Engine\UI\UIPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Engine\Maths\Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine\Gizmos.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PlayerController.h">
@@ -275,6 +281,12 @@
     <ClInclude Include="include\Engine\Vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Engine\Gizmos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Engine\Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Blit.shader" />
@@ -283,6 +295,7 @@
     <None Include="res\shaders\Light.shader" />
     <None Include="res\shaders\LitNormals.shader" />
     <None Include="res\shaders\TemporalReprojection.shader" />
+    <None Include="res\shaders\Gizmos.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\sprites\pleasedonotthecat.png">

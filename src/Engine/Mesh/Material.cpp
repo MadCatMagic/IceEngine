@@ -38,6 +38,18 @@ void Material::SetShader(Shader& shader)
 	this->shader = shader;
 }
 
+void Material::SetBool(const std::string& name, bool b)
+{
+	int location = GetUniformLocation(name);
+	glUniform1i(location, b);
+}
+
+void Material::SetBoolArray(const std::string& name, const bool* bools, unsigned int count)
+{
+	int location = GetUniformLocation(name);
+	glUniform1iv(location, count, (int*)bools);
+}
+
 void Material::SetInt(const std::string& name, int i)
 {
 	int location = GetUniformLocation(name);

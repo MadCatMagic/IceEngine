@@ -39,8 +39,11 @@ namespace Renderer
 	extern void BlitToScreen(Texture2D src, const Vector2i& winSize);
 	extern void BlitToScreen(RenderTexture src, const Vector2i& winSize);
 
+	// render pipeline
 	extern void RenderToCamera(Camera* cam);
 	extern void PostProcess(Camera* cam, RenderTexture dest);
+
+	extern void RenderGizmos(Camera* cam);
 
 	extern void RenderLight(Light* light);
 

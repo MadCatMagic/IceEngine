@@ -39,10 +39,14 @@ void VertexArray::Construct()
 
 void VertexArray::Bind() const
 {
+	currentlyBound = id;
 	glBindVertexArray(id);
 }
 
 void VertexArray::Unbind() const
 {
+	currentlyBound = 0;
 	glBindVertexArray(0);
 }
+
+unsigned int VertexArray::currentlyBound = 0;

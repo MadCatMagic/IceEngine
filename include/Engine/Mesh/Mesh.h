@@ -111,6 +111,8 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
+	static MeshData GetMeshDataFromFile(const std::string& filepath);
+
 	inline VertexBuffer GetVertexBuffer() const { return vertexBuffer; }
 	inline IndexBuffer GetIndexBuffer() const { return indexBuffer; }
 
@@ -132,10 +134,10 @@ private:
 
 	// -- mesh loading pipeline --
 	// reads meshdata from .obj file
-	MeshData ReadMeshFileOBJ(const std::string& filepath);
+	static MeshData ReadMeshFileOBJ(const std::string& filepath);
 
 	// generates cleaner meshdata
-	MeshData ConsolidateVertexData(
+	static MeshData ConsolidateVertexData(
 		const std::vector <Vector3>& vertices, 
 		const std::vector <Vector3>& normals, 
 		const std::vector <Vector2>& texUVs, 
@@ -153,10 +155,10 @@ private:
 
 	// reads mesh from icem file
 	// no need for ConsolidateVertexData() so is much faster
-	MeshData ReadMeshFileICEM(const std::string& filepath);
+	static MeshData ReadMeshFileICEM(const std::string& filepath);
 
 	// compiles 
-	ustring CompileICEMFile(const MeshData& meshData);
-	void WriteICEMFile(const ustring& data, const std::string& filepath);
+	static ustring CompileICEMFile(const MeshData& meshData);
+	static void WriteICEMFile(const ustring& data, const std::string& filepath);
 };
 

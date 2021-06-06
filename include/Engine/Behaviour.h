@@ -23,6 +23,8 @@ public:
 	static void UpdateBehaviours();
 	static void ReleaseBehaviours();
 
+	static void DrawGizmosFromBehaviours();
+
 private:
 	// called before the first frame
 	inline virtual void Start() {};
@@ -30,6 +32,9 @@ private:
 	inline virtual void Update() {};
 	// called before start()
 	inline virtual void Awake() {};
+
+	// on draw gizmos
+	inline virtual void OnDrawGizmos() {};
 
 	static std::vector<Behaviour*> behaviourList;
 };

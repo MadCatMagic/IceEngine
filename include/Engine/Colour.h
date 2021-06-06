@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "Vector.h"
 
 // like a vector4 except operations do not change the alpha value (for convieniance)
 class Colour
@@ -29,6 +30,8 @@ public:
 	bool operator==(const Colour& obj) const;
 	bool operator!=(const Colour& obj) const;
 
+	Vector3 ToVector3() const;
+	Vector4 ToVector4() const;
 	std::string ToString() const;
 
 	static Colour black;   // 0.0f, 0.0f, 0.0f, 1.0f
