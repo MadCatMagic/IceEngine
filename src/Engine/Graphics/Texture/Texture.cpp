@@ -1,4 +1,4 @@
-#include "Engine/Texture/Texture.h"
+#include "Engine/Graphics/Texture/Texture.h"
 
 Texture::Format Texture::FormatType(Format format)
 {

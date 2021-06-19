@@ -9,7 +9,7 @@ layout(location = 1) in vec3 norm;
 layout(location = 2) in vec2 uv;
 layout(location = 3) in vec3 tangent;
 
-#define lightNum 2
+#define lightNum 4
 
 out VS_OUT{
     vec3 position;
@@ -62,7 +62,7 @@ void main()
 
 layout(location = 0) out vec4 colour;
 
-#define lightNum 2
+#define lightNum 4
 
 in VS_OUT{
     vec3 position;

@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Behaviour.h"
 #include "Mesh.h"
-#include "Engine/Camera.h"
+#include "Engine/Graphics/Camera.h"
 
 #include <vector>
 

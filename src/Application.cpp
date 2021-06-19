@@ -1,20 +1,18 @@
-#include <iostream>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "Engine/Core.h"
 
-#include "Engine/Renderer.h"
-#include "Engine/Time.h"
+#include "Engine/Graphics/Renderer.h"
+#include "Engine/Core/Time.h"
 #include "Engine/UI.h"
 
-#include "Engine/Quaternion.h"
-#include "Engine/Input.h"
+#include "Engine/Core/Input.h"
 
 #include "Engine/Mesh.h"
 
-#include "Engine/Camera.h"
+#include "Engine/Graphics/Camera.h"
 #include "Engine/Entity.h"
 #include "PlayerController.h"
 #include "EntityInspector.h"
@@ -47,12 +45,13 @@ int main(void)
     GLenum err = glewInit();
     if (err != GLEW_OK) 
     {
-        std::cout << "GLEW ERROR" << std::endl;
+        Console::LogError("GLEW ERROR");
     }
     
     Renderer::Init(true, window);
     Input::EnableInput(window);
     UI::Initialize(winSize);
+    Console::_OnStart();
 
     // entity testing
     Entity player = Entity();
@@ -103,7 +102,7 @@ int main(void)
     MeshFilter* sceneFilter = scenee.AddBehaviour<MeshFilter>();
     sceneFilter->SetMesh(&sceneMesh);
     sceneFilter->SetMat(&mat);
-
+    
     /* LIGHT SETUP */
     // entity with sun light facing nearly down
     // NOTE: sun doesnt like being straight down - view matrix breaks or something
@@ -122,6 +121,16 @@ int main(void)
     light2->colour = Colour::yellow;
     light2->strength = 2.0f;
     light2->GenerateTexture();
+
+    // third light for spot testing
+    Entity lightEntity3 = Entity();
+    lightEntity3.transform->Rotate(Vector3(DegreesToRadii(30.0f), DegreesToRadii(-70.0f), 0.0f));
+    lightEntity3.transform->Move(Vector3(1.0f, 1.5f, -1.0f));
+    Light* light3 = lightEntity3.AddBehaviour<Light>();
+    light3->type = Light::Type::Spot;
+    light3->colour = Colour::red;
+    light3->strength = 1.5f;
+    light3->GenerateTexture();
 
     // texture stufffff
     // camera rendertexture
@@ -160,7 +169,7 @@ int main(void)
         double currentTime = glfwGetTime();
         nbFrames++;
         if (currentTime - lastTime >= 1.0) {
-            std::cout << nbFrames << " fps" << std::endl;
+            Console::Log(std::to_string(nbFrames) + " fps");
             nbFrames = 0;
             lastTime += 1.0;
         }
@@ -191,7 +200,7 @@ int main(void)
         Renderer::RenderGizmos(cam);
 
         // renders the ui ontop
-        UI::RenderUI(&renderTexture);
+        //UI::RenderUI(&renderTexture);
         // clears the screen ready for the new rendertexture to be blit onto it
         Renderer::BindScreenBuffer();
         Renderer::ClearScreen(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -242,6 +251,7 @@ int main(void)
     Renderer::Release();
     Behaviour::ReleaseBehaviours();
     UI::SpriteRenderer::ReleaseRenderer();
+    Console::_OnExit();
 
     glfwTerminate();
     return 0;

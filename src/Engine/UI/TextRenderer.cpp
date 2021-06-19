@@ -1,6 +1,6 @@
 #include "Engine/UI/TextRenderer.h"
 
-#include <iostream>
+#include "Engine/Core.h"
 
 namespace UI
 {
@@ -59,7 +59,7 @@ namespace UI
             // Load character glyph 
             if (FT_Load_Char(face, c, FT_LOAD_RENDER))
             {
-                std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+                Console::LogError("ERROR::FREETYPE: Failed to load Glyph");
                 continue;
             }
 
@@ -157,7 +157,7 @@ namespace UI
         // initialize library
         if (FT_Init_FreeType(&ftlib))
         {
-            std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+            Console::LogError("ERROR::FREETYPE: Could not init FreeType Library");
         }
 
         // opengl stuff
@@ -184,7 +184,7 @@ namespace UI
         FT_Face face = nullptr;
         if (FT_New_Face(ftlib, filepath.c_str(), 0, &face))
         {
-            std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+            Console::LogError("ERROR::FREETYPE: Failed to load font");
         }
         return face;
     }

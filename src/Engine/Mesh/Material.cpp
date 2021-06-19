@@ -1,5 +1,4 @@
 #include <GL/glew.h>
-#include <iostream>
 #include <vector>
 
 #include "Engine/Mesh/Material.h"

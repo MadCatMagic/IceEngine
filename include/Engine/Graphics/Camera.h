@@ -1,6 +1,6 @@
 #pragma once
-#include "Matrix.h"
-#include "Behaviour.h"
+#include "Engine/Core/Matrix.h"
+#include "Engine/Behaviour.h"
 #include "Texture/RenderTexture.h"
 
 class Behaviour;

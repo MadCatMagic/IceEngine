@@ -1,6 +1,6 @@
 #include "Engine/Behaviour.h"
 #include "Engine/Entity.h"
-#include "Engine/Camera.h"
+#include "Engine/Graphics/Camera.h"
 
 Behaviour::Behaviour()
 {

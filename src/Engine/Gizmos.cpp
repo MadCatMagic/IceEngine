@@ -1,12 +1,9 @@
 #include "Engine/Gizmos.h"
 #include "Engine/Mesh/Material.h"
 #include "Engine/Mesh/VertexArray.h"
-#include "Engine/Mesh/VertexBuffer.h"
-#include "Engine/Mesh/IndexBuffer.h"
-#include "Engine/Mesh/Mesh.h"
 
 #include "Engine/Transform.h"
-#include "Engine/Camera.h"
+#include "Engine/Graphics/Camera.h"
 
 namespace Gizmos
 {
@@ -20,12 +17,10 @@ namespace Gizmos
 	static VertexArray* gizmosVA;
 
 	// cube data
-	static VertexBuffer* gizmosVBCube;
-	static IndexBuffer* gizmosIBCube;
+	static GizmosMesh cubeMesh;
 
 	// sphere data
-	static VertexBuffer* gizmosVBSphere;
-	static IndexBuffer* gizmosIBSphere;
+	static GizmosMesh sphereMesh;
 
 	// line data
 	static VertexBuffer* gizmosLine;
@@ -37,7 +32,6 @@ namespace Gizmos
 	void DrawCubeGL();
 	void DrawSphereGL();
 	void SetMatUniforms(const Matrix4x4& modelMatrix);
-	void GenerateVertexIndexData(const std::string& filepath, VertexBuffer** vb, IndexBuffer** ib);
 
 	void SetColour(const Colour& col)
 	{
@@ -55,7 +49,8 @@ namespace Gizmos
 		Matrix4x4 modelMatrix = t.TransformationMatrix();
 
 		SetMatUniforms(modelMatrix);
-		DrawCubeGL();
+		gizmosVA->Bind();
+		cubeMesh.Draw();
 	}
 
 	void DrawSphere(const Vector3& centre, float radius)
@@ -64,7 +59,8 @@ namespace Gizmos
 		Matrix4x4 modelMatrix = t.TransformationMatrix();
 
 		SetMatUniforms(modelMatrix);
-		DrawSphereGL();
+		gizmosVA->Bind();
+		sphereMesh.Draw();
 	}
 
 	void DrawWireCube(const Vector3& centre, const Vector3& scale)
@@ -74,7 +70,8 @@ namespace Gizmos
 
 		SetMatUniforms(modelMatrix);
 		Shader::ToggleWireframe(true);
-		DrawCubeGL();
+		gizmosVA->Bind();
+		cubeMesh.Draw();
 		Shader::ToggleWireframe(false);
 	}
 
@@ -85,22 +82,26 @@ namespace Gizmos
 
 		SetMatUniforms(modelMatrix);
 		Shader::ToggleWireframe(true);
-		DrawSphereGL();
+		gizmosVA->Bind();
+		//int val;
+		//std::cout << "ast" << std::endl;
+		//glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &val);
+		//std::cout << val << std::endl;
+		sphereMesh.Draw();
+		//glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &val);
+		//std::cout << val << std::endl;
 		Shader::ToggleWireframe(false);
 	}
 
 	void DrawLine(const Vector3& p1, const Vector3& p2)
 	{
-		float data[12] { };
-		data[0] = p1.x; data[1] =  p1.y; data[2] =  p1.z;
-		data[3] = 0.0f; data[4] =  1.0f; data[5] =  0.0f;
-		data[6] = p2.x; data[7] =  p2.y; data[8] =  p2.z;
-		data[9] = 0.0f; data[10] = 1.0f; data[11] = 0.0f;
+		float dist = Vector3::Distance(p1, p2);
+		Matrix4x4 modelMatrix = 
+			Matrix4x4::PointAt(p1, p2, Vector3(0.0f, 1.0f, 0.0f)) * 
+			Matrix4x4(Vector4(dist, dist, dist, 1));
+		SetMatUniforms(modelMatrix);
+
 		gizmosLine->Bind();
-		gizmosLine->ModifyData(data, 12 * sizeof(float), 0);
-
-		SetMatUniforms(Matrix4x4::identity);
-
 		gizmosVA->Bind();
 		glDrawArrays(GL_LINES, 0, 2);
 	}
@@ -110,21 +111,11 @@ namespace Gizmos
 		DrawLine(ray.origin, ray.origin + ray.direction * length);
 	}
 
-	void DrawCubeGL()
-	{
-		gizmosVA->Bind();
-		gizmosVBCube->Bind();
-		gizmosIBCube->Bind();
-		glDrawElements(GL_TRIANGLES, gizmosIBCube->GetCount(), GL_UNSIGNED_INT, nullptr);
-	}
-
-	void DrawSphereGL()
-	{
-		gizmosVA->Bind();
-		gizmosVBSphere->Bind();
-		gizmosIBSphere->Bind();
-		glDrawElements(GL_TRIANGLES, gizmosIBSphere->GetCount(), GL_UNSIGNED_INT, nullptr);
-	}
+	// line data
+	const float linedata[12]{
+		0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f
+	};
 
 	void SetupGizmos()
 	{
@@ -132,38 +123,19 @@ namespace Gizmos
 		gizmosMaterial = new Material(*gizmosShader);
 
 		// generating vertexdata for cube
-		//GenerateVertexIndexData("res/models/cube.obj", &gizmosVBCube, &gizmosIBCube);
+		cubeMesh = GizmosMesh("res/models/cube.obj");
 
 		// generating vertexdata for sphere
-		GenerateVertexIndexData("res/models/icosphere.obj", &gizmosVBSphere, &gizmosIBSphere);
+		sphereMesh = GizmosMesh("res/models/icosphere.obj");
+		cubeMesh.Bind();
 
-		// line data
-		float nulldata[12]{ };
-		gizmosLine = new VertexBuffer(nulldata, 12 * sizeof(float), VertexBuffer::UsageHint::DynamicDraw);
+		//gizmosLine = new VertexBuffer(linedata, 12 * sizeof(float), VertexBuffer::UsageHint::DynamicDraw);
 
 		gizmosVA = new VertexArray(true);
 		gizmosVA->EnableAttribute(0);
 		gizmosVA->EnableAttribute(1);
 		gizmosVA->FormatAttribute(0, 3, GL_FLOAT, false, sizeof(float) * 6, 0);
 		gizmosVA->FormatAttribute(1, 3, GL_FLOAT, false, sizeof(float) * 6, (void*)(sizeof(float) * 3));
-	}
-
-	void GenerateVertexIndexData(const std::string& filepath, VertexBuffer** vb, IndexBuffer** ib) 
-	{
-		MeshData md = Mesh::GetMeshDataFromFile(filepath);
-		std::vector<float> floats = std::vector<float>(md.vertexCount * 6);
-		for (unsigned int i = 0; i < md.vertexCount; i++)
-		{
-			floats[i * 6 + 0] = md.vertices[i].pos.x;
-			floats[i * 6 + 1] = md.vertices[i].pos.y;
-			floats[i * 6 + 2] = md.vertices[i].pos.z;
-			floats[i * 6 + 3] = md.vertices[i].normal.x;
-			floats[i * 6 + 4] = md.vertices[i].normal.y;
-			floats[i * 6 + 5] = md.vertices[i].normal.z;
-		}
-
-		*vb = new VertexBuffer(&floats[0], floats.size() * sizeof(float));
-		*ib = new IndexBuffer(md.indices, md.indiceCount);
 	}
 
 	void SetTargetCamera(Camera* target)
@@ -185,11 +157,94 @@ namespace Gizmos
 		delete gizmosMaterial;
 
 		delete gizmosVA;
-
-		delete gizmosVBCube;
-		delete gizmosIBCube;
-		delete gizmosVBSphere;
-		delete gizmosIBSphere;
 		delete gizmosLine;
+	}
+
+	// gizmos class stuff
+
+	GizmosMesh::GizmosMesh(const std::string& filepath)
+	{
+		SetMeshFromFile(filepath);
+		CreateBuffers();
+	}
+
+	GizmosMesh::GizmosMesh(const GizmosMesh& obj)
+	{
+		ib = obj.ib;
+		vb = obj.vb;
+		md = obj.md;
+	}
+
+	GizmosMesh::GizmosMesh(GizmosMesh&& obj) noexcept
+	{
+		ib = obj.ib;
+		obj.ib = IndexBuffer();
+		vb = obj.vb;
+		obj.vb = VertexBuffer();
+		md = obj.md;
+		obj.md = MeshData();
+	}
+
+	GizmosMesh::~GizmosMesh()
+	{
+	}
+
+	GizmosMesh& GizmosMesh::operator=(const GizmosMesh& obj)
+	{
+		ib = obj.ib;
+		vb = obj.vb;
+		md = obj.md;
+		return *this;
+	}
+
+	GizmosMesh& GizmosMesh::operator=(GizmosMesh&& obj) noexcept
+	{
+		ib = obj.ib;
+		obj.ib = IndexBuffer();
+		vb = obj.vb;
+		obj.vb = VertexBuffer();
+		md = obj.md;
+		obj.md = MeshData();
+		return *this;
+	}
+
+	void GizmosMesh::Draw() const
+	{
+		Bind();
+		glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr);
+	}
+
+	void GizmosMesh::Bind() const
+	{
+		vb.Bind();
+		ib.Bind();
+	}
+
+	void GizmosMesh::Unbind() const
+	{
+		vb.Unbind();
+		ib.Unbind();
+	}
+
+	unsigned int GizmosMesh::GetCount() const
+	{
+		return ib.GetCount();
+	}
+
+	void GizmosMesh::CreateBuffers()
+	{
+		std::vector<float> floats = std::vector<float>(md.vertexCount * 6);
+		for (unsigned int i = 0; i < md.vertexCount; i++)
+		{
+			floats[i * 6 + 0] = md.vertices[i].pos.x;
+			floats[i * 6 + 1] = md.vertices[i].pos.y;
+			floats[i * 6 + 2] = md.vertices[i].pos.z;
+			floats[i * 6 + 3] = md.vertices[i].normal.x;
+			floats[i * 6 + 4] = md.vertices[i].normal.y;
+			floats[i * 6 + 5] = md.vertices[i].normal.z;
+		}
+
+		vb.SetData(&floats[0], floats.size() * sizeof(float));
+		ib = IndexBuffer(md.indices, md.indiceCount);
 	}
 }

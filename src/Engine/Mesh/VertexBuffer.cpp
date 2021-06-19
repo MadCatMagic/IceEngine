@@ -1,5 +1,5 @@
 #include "Engine/Mesh/VertexBuffer.h"
-#include "Engine/Renderer.h"
+#include "Engine/Graphics/Renderer.h"
 
 VertexBuffer::VertexBuffer()
 {
@@ -61,14 +61,10 @@ void VertexBuffer::ModifyData(const void* data, unsigned int size, unsigned int 
 
 void VertexBuffer::Bind() const
 {
-	currentlyBound = id;
 	glBindBuffer(GL_ARRAY_BUFFER, id);
 }
 
 void VertexBuffer::Unbind() const
 {
-	currentlyBound = 0;
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-
-unsigned int VertexBuffer::currentlyBound = 0;

@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
 
-#include "Colour.h"
-#include "Vector.h"
+#include "Core/Colour.h"
+#include "Core/Vector.h"
 #include "Behaviour.h"
-#include "Texture.h"
+#include "Graphics/Texture.h"
 
 #define SHADOWMAP_SIZE 2048
 

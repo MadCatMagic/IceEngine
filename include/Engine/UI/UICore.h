@@ -1,8 +1,8 @@
 #pragma once
 #pragma once
 
-#include "Engine/Vector.h"
-#include "Engine/Texture.h"
+#include "Engine/Core/Vector.h"
+#include "Engine/Graphics/Texture.h"
 
 namespace UI
 {

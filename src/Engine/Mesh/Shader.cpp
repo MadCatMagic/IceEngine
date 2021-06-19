@@ -143,7 +143,7 @@ void Shader::ToggleWireframe(bool on)
 
 void Shader::InitializeParameters()
 {
-    parameters[Param::Blend] = false;
+    parameters[Param::Blend] = true;
     parameters[Param::Cull] = false;
     parameters[Param::SetProjMatrix] = false;
     parameters[Param::ZWrite] = false;
@@ -177,7 +177,7 @@ ShaderProgramSource Shader::ParseShader(const std::string& filepath)
     std::stringstream ss[2];
 
     std::unordered_map<Param, bool> params;
-    params[Param::Blend] = false;
+    params[Param::Blend] = true;
     params[Param::Cull] = false;
     params[Param::SetProjMatrix] = false;
     params[Param::ZWrite] = false;

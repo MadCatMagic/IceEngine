@@ -19,6 +19,7 @@ struct Vector2
 
 	static float Dot(const Vector2& a, const Vector2& b);
 	static float Magnitude(const Vector2& a);
+	static float Distance(const Vector2& a, const Vector2& b);
 	static Vector2 Normalize(const Vector2& a);
 	
 	Vector2 operator+(const Vector2& a) const;
@@ -54,6 +55,7 @@ struct Vector3
 
 	static float Dot(const Vector3& a, const Vector3& b);
 	static float Magnitude(const Vector3& a);
+	static float Distance(const Vector3& a, const Vector3& b);
 	static Vector3 Normalize(const Vector3& a);
 	static Vector3 Cross(const Vector3& a, const Vector3& b);
 
@@ -92,6 +94,7 @@ struct Vector4
 
 	static float Dot(const Vector4& a, const Vector4& b);
 	static float Magnitude(const Vector4& a);
+	static float Distance(const Vector4& a, const Vector4& b);
 	static Vector4 Normalize(const Vector4& a);
 
 	Vector4 operator+(const Vector4& a) const;

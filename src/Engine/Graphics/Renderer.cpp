@@ -1,11 +1,10 @@
-#include <iostream>
 
-#include "Engine/Renderer.h"
-#include "Engine/Texture.h"
+#include "Engine/Graphics/Renderer.h"
+#include "Engine/Graphics/Texture.h"
 #include "Engine/Mesh.h"
 
 #include "Engine/Light.h"
-#include "Engine/PostProcessEffect.h"
+#include "Engine/Graphics/PostProcessEffect.h"
 
 #include "Engine/Entity.h"
 #include "Engine/Gizmos.h"
@@ -14,34 +13,44 @@ namespace Renderer
 {
     static void APIENTRY GLErrorCall(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
     {
-        std::cout << "-- OpenGL Error --" << std::endl;
+        std::string s = "-- OpenGL Error --\n";
 
-        if (source == GL_DEBUG_SOURCE_API)             std::cout << "Source : API" << std::endl;
-        if (source == GL_DEBUG_SOURCE_WINDOW_SYSTEM)   std::cout << "Source : WINDOW_SYSTEM" << std::endl;
-        if (source == GL_DEBUG_SOURCE_SHADER_COMPILER) std::cout << "Source : SHADER_COMPILER" << std::endl;
-        if (source == GL_DEBUG_SOURCE_THIRD_PARTY)     std::cout << "Source : THIRD_PARTY" << std::endl;
-        if (source == GL_DEBUG_SOURCE_APPLICATION)     std::cout << "Source : APPLICATION" << std::endl;
-        if (source == GL_DEBUG_SOURCE_OTHER)           std::cout << "Source : OTHER" << std::endl;
+        if (source == GL_DEBUG_SOURCE_API)             s += "Source : API\n";
+        if (source == GL_DEBUG_SOURCE_WINDOW_SYSTEM)   s += "Source : WINDOW_SYSTEM\n";
+        if (source == GL_DEBUG_SOURCE_SHADER_COMPILER) s += "Source : SHADER_COMPILER\n";
+        if (source == GL_DEBUG_SOURCE_THIRD_PARTY)     s += "Source : THIRD_PARTY\n";
+        if (source == GL_DEBUG_SOURCE_APPLICATION)     s += "Source : APPLICATION\n";
+        if (source == GL_DEBUG_SOURCE_OTHER)           s += "Source : OTHER\n";
         
-        if (type == GL_DEBUG_TYPE_ERROR)               std::cout << "Type : ERROR" << std::endl;
-        if (type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR) std::cout << "Type : DEPRECATED_BEHAVIOUR" << std::endl;
-        if (type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)  std::cout << "Type : UNDEFINED_BEHAVIOUR" << std::endl;
-        if (type == GL_DEBUG_TYPE_PORTABILITY)         std::cout << "Type : PORTABILITY" << std::endl;
-        if (type == GL_DEBUG_TYPE_PERFORMANCE)         std::cout << "Type : PERFORMANCE" << std::endl;
-        if (type == GL_DEBUG_TYPE_OTHER)               std::cout << "Type : OTHER" << std::endl;
-        if (type == GL_DEBUG_TYPE_MARKER)              std::cout << "Type : MARKER" << std::endl;
-        if (type == GL_DEBUG_TYPE_PUSH_GROUP)          std::cout << "Type : PUSH_GROUP" << std::endl;
-        if (type == GL_DEBUG_TYPE_POP_GROUP)           std::cout << "Type : POP_GROUP" << std::endl;
+        if (type == GL_DEBUG_TYPE_ERROR)               s += "Type : ERROR\n";
+        if (type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR) s += "Type : DEPRECATED_BEHAVIOUR\n";
+        if (type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)  s += "Type : UNDEFINED_BEHAVIOUR\n";
+        if (type == GL_DEBUG_TYPE_PORTABILITY)         s += "Type : PORTABILITY\n";
+        if (type == GL_DEBUG_TYPE_PERFORMANCE)         s += "Type : PERFORMANCE\n";
+        if (type == GL_DEBUG_TYPE_OTHER)               s += "Type : OTHER\n";
+        if (type == GL_DEBUG_TYPE_MARKER)              s += "Type : MARKER\n";
+        if (type == GL_DEBUG_TYPE_PUSH_GROUP)          s += "Type : PUSH_GROUP\n";
+        if (type == GL_DEBUG_TYPE_POP_GROUP)           s += "Type : POP_GROUP\n";
 
-        if (severity == GL_DEBUG_SEVERITY_HIGH)         std::cout << "Severity : HIGH" << std::endl;
-        if (severity == GL_DEBUG_SEVERITY_MEDIUM)       std::cout << "Severity : MEDIUM" << std::endl;
-        if (severity == GL_DEBUG_SEVERITY_LOW)          std::cout << "Severity : LOW" << std::endl;
-        if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) std::cout << "Severity : NOTIFICATION" << std::endl;
+        if (severity == GL_DEBUG_SEVERITY_HIGH)         s += "Severity : HIGH\n";
+        if (severity == GL_DEBUG_SEVERITY_MEDIUM)       s += "Severity : MEDIUM\n";
+        if (severity == GL_DEBUG_SEVERITY_LOW)          s += "Severity : LOW\n";
+        if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) s += "Severity : NOTIFICATION\n";
 
-        std::cout << "Id: " << id << std::endl;
-        std::cout << "Message: " << message << std::endl;
+        s += "Id: " + std::to_string(id) + "\n";
+        s += "Message: ";
+        s += message;
+        s += "\n";
+        
+
+
         if (severity != GL_DEBUG_SEVERITY_NOTIFICATION)
+        {
+            Console::LogError(s);
             exit(-1);
+        }
+        else
+            Console::LogWarning(s);
     }
 
     void DebugEnable()

@@ -1,6 +1,6 @@
 #pragma once
 #include <GL/glew.h>
-#include "Engine/Vector.h"
+#include "Engine/Core/Vector.h"
 
 class Texture
 {

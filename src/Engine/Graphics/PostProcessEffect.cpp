@@ -1,6 +1,6 @@
-#include "Engine/PostProcessEffect.h"
+#include "Engine/Graphics/PostProcessEffect.h"
 #include "Engine/Entity.h"
-#include "Engine/Camera.h"
+#include "Engine/Graphics/Camera.h"
 
 PostProcessEffect::PostProcessEffect() { }
 

@@ -1,6 +1,6 @@
 #include "Engine/Light.h"
-#include "Engine/Renderer.h"
-#include "Engine/Camera.h"
+#include "Engine/Graphics/Renderer.h"
+#include "Engine/Graphics/Camera.h"
 #include "Engine/Gizmos.h"
 
 Light::Light()
@@ -65,12 +65,15 @@ void Light::Update()
 
 void Light::OnDrawGizmos()
 {
+	Gizmos::SetColour(colour);
 	if (type != Type::Sun)
 	{
-		Gizmos::SetColour(colour);
-		Gizmos::DrawSphere(transform->GetPos(), 0.2f);
-		//Gizmos::DrawLine(transform->GetPos(), transform->GetPos() + GetLightDir());
+		Gizmos::DrawWireSphere(transform->GetPos(), 0.2f);
+		Gizmos::DrawWireCube(transform->GetPos() + Vector3::one * 0.2f, Vector3::one * 0.2f);
+		//Gizmos::DrawLine(transform->GetPos(), transform->GetPos() + GetLightDir() * 0.5f);
 	}
+	else
+		Gizmos::DrawWireCube(transform->GetPos() + Vector3::one * 0.2f, Vector3::one * 0.4f);
 }
 
 std::vector<Light*> Light::lights = std::vector<Light*>();

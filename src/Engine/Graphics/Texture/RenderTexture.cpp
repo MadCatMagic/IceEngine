@@ -1,5 +1,5 @@
-#include "Engine/Texture/RenderTexture.h"
-#include <iostream>
+#include "Engine/Graphics/Texture/RenderTexture.h"
+#include "Engine/Core.h"
 
 RenderTexture::RenderTexture(int width, int height, Format depth, Format colour)
 	: Texture(Dimension::Two)
@@ -97,7 +97,7 @@ void RenderTexture::GenerateBuffers()
 
 	generatedBuffers = true;
 	if (!TextureOK())
-		std::cout << "Rendertexture error!" << std::endl;
+		Console::LogError("Rendertexture error!");
 	Unbind();
 }
 

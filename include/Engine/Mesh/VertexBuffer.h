@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Renderer.h"
+#include "Engine/Graphics/Renderer.h"
 
 class VertexBuffer
 {
@@ -25,7 +25,7 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
-	static unsigned int currentlyBound;
+	inline unsigned int GetID() const { return id; }
 
 private:
 	unsigned int id;

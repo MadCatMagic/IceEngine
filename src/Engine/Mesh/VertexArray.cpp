@@ -1,5 +1,4 @@
 #include "Engine/Mesh/VertexArray.h"
-#include <iostream>
 
 VertexArray::VertexArray() { }
 

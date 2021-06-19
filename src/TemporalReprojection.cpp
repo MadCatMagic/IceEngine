@@ -1,7 +1,7 @@
 #include "TemporalReprojection.h"
-#include "Engine/Renderer.h"
+#include "Engine/Graphics/Renderer.h"
 #include "Engine/Mesh/Material.h"
-#include "Engine/Camera.h"
+#include "Engine/Graphics/Camera.h"
 
 TemporalReprojection::TemporalReprojection()
 {

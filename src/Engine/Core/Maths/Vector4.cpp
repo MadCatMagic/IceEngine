@@ -1,5 +1,5 @@
 #include <cmath>
-#include "Engine/Vector.h"
+#include "Engine/Core/Vector.h"
 
 Vector4::Vector4()
 {
@@ -57,6 +57,11 @@ float Vector4::Dot(const Vector4& a, const Vector4& b)
 float Vector4::Magnitude(const Vector4& a)
 {
 	return sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+}
+
+float Vector4::Distance(const Vector4& a, const Vector4& b)
+{
+	return Magnitude(a - b);
 }
 
 static float kEpsilon = 0.00001f;

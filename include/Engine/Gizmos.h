@@ -1,10 +1,40 @@
 #pragma once
 #include "Core.h"
+#include "Mesh/BasicMesh.h"
+#include "Mesh/VertexBuffer.h"
+#include "Mesh/IndexBuffer.h"
 
 class Camera;
 
 namespace Gizmos {
+	class GizmosMesh : public BasicMesh 
+	{
+	public:
+		inline GizmosMesh() { }
+		GizmosMesh(const std::string& filepath);
+		GizmosMesh(const GizmosMesh& obj);
+		GizmosMesh(GizmosMesh&& obj) noexcept;
+		~GizmosMesh();
+
+		GizmosMesh& operator=(const GizmosMesh& obj);
+		GizmosMesh& operator=(GizmosMesh&& obj) noexcept;
+
+		void Draw() const;
+
+		void Bind() const;
+		void Unbind() const;
+
+		unsigned int GetCount() const;
+	private:
+		void CreateBuffers();
+
+		VertexBuffer vb;
+		IndexBuffer ib;
+	};
+
+	// set colour used to draw gizmos
 	extern void SetColour(const Colour& col);
+	// return colour used to draw gizmos
 	extern Colour GetColour();
 
 	// primitives
@@ -25,7 +55,7 @@ namespace Gizmos {
 	extern void DrawRay(const Ray& ray, float length);
 
 
-	// used by Renderer in render pipeline
+	// used by Renderer in render pipeline to set view and proj matrices
 	extern void SetTargetCamera(Camera* cam);
 	// sets up gizmos material and the primitive meshes
 	extern void SetupGizmos();

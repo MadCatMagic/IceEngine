@@ -1,4 +1,4 @@
-#include "Engine/Vector.h"
+#include "Engine/Core/Vector.h"
 #include <cmath>
 
 Vector2::Vector2()
@@ -27,6 +27,11 @@ float Vector2::Dot(const Vector2& a, const Vector2& b)
 float Vector2::Magnitude(const Vector2& a)
 {
 	return sqrt(a.x * a.x + a.y * a.y);
+}
+
+float Vector2::Distance(const Vector2& a, const Vector2& b)
+{
+	return Magnitude(a - b);
 }
 
 static float kEpsilon = 0.00001f;

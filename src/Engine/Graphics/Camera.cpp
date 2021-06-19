@@ -1,7 +1,6 @@
-#include "Engine/Camera.h"
+#include "Engine/Graphics/Camera.h"
 
 #include <cmath>
-#include <iostream>
 
 Camera::Camera() { }
 
